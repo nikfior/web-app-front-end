@@ -1,34 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import { Route, Routes } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import Login from "./Login";
+import MainView from "./MainView";
+import Analysis from "./Analysis";
+import getDataCheckSession from "./getDataCheckSession";
+
+//
 
 function App() {
+  const navigate = useNavigate();
 
-  // console.log("process:");
-  // console.log(process);
-  console.log("process.env:");
-  console.log(process.env);
-  console.log("process.env.REACT_APP_SERVER_URL:");
-  console.log(process.env.REACT_APP_SERVER_URL);
-  console.log("typeof(process.env.REACT_APP_SERVER_URL):");
-  console.log(typeof(process.env.REACT_APP_SERVER_URL));
+  useEffect(() => {
+    getDataCheckSession()
+      .then(() => {
+        navigate("/view");
+      })
+      .catch((error) => {
+        if (error.message === "Credentials missing") {
+          if (window.location.search) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const jwttoken = urlParams.get("jwttoken");
+            document.cookie = "jwttoken=" + jwttoken + ";max-age=2592000";
+            navigate("/view");
+          }
+        } else {
+          console.log(error.name + ": " + error.message);
+        }
+      });
+
+    //
+  }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/view" element={<MainView />} />
+      <Route path="/analysis" element={<Analysis />} />
+    </Routes>
   );
 }
 

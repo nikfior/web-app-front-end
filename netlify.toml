@@ -1,2 +1,3 @@
 [context.production.environment]
-  REACT_APP_SERVER_URL = "aabbccdd prod"
+  REACT_APP_FRONTEND_REDIRECT_CALLBACK="https://nikfior-front-end.netlify.app"
+  CI = ""
