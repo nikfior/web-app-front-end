@@ -14,7 +14,7 @@ const List = ({ items, removeItem, editItem }) => {
             className="sites-item"
             key={id}
             onClick={(e) => {
-              navigate("/analysis?url=" + url);
+              navigate("/analysis?id=" + id);
             }}
           >
             <p className="title">{url}</p>

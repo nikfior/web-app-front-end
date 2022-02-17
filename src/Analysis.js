@@ -16,23 +16,46 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
+import { DataGrid } from "@mui/x-data-grid";
 
 const drawerWidth = 240;
 
 const Analysis = () => {
   const [data, setData] = useState({ nodes: 0 });
+  const [gridData, setGridData] = useState(0);
   const navigate = useNavigate();
+
+  const makeGridData = (data) => {
+    let columns = data.subdirsname.map((x, i) => {
+      return { field: String(i), headerName: x, width: 130 };
+    });
+
+    columns.unshift({ field: "-1", headerName: "Terms", width: 130 });
+
+    let rows = [];
+    for (let i = 0; i < data.bm25Terms.length; i++) {
+      let row = { id: i, "-1": data.bm25Terms[i] };
+      for (let j = 0; j < data.bm25Matrix.length; j++) {
+        row[j] = data.bm25Matrix[j][i];
+      }
+      rows.push(row);
+    }
+
+    setGridData({ columns, rows });
+  };
 
   useEffect(() => {
     // TODO to include cases where query is invalid
     const urlParams = new URLSearchParams(window.location.search);
-    const url = urlParams.get("url");
+    const id = urlParams.get("id");
 
-    getDataCheckSession("https://nikfior-back-end.herokuapp.com/api/sites/search?url=" + url)
+    getDataCheckSession("https://nikfior-back-end.herokuapp.com/api/sites/analysis?id=" + id)
       .then((data) => {
         // console.log(data.nodes[0][3].str);
         // console.log(data);
+
         setData(data);
+        makeGridData(data);
       })
       .catch((error) => {
         if (error.message === "Credentials missing") {
@@ -50,7 +73,7 @@ const Analysis = () => {
     <div>
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
-        <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        {/* <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
           <Toolbar>
             <Typography variant="h6" noWrap component="div">
               Sub-directories
@@ -85,23 +108,42 @@ const Analysis = () => {
               ))}
             </List>
           </Box>
-        </Drawer>
+        </Drawer> */}
         <Box sx={{ flexGrow: 1, p: 3 }}>
           <Toolbar />
+
           {data.nodes === 0 ? (
             <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
               <CircularProgress />
             </div>
           ) : (
-            <section style={{ backgroundColor: "rgb(39, 40, 34)" }} className="section-center">
+            <section className="section-center">
               <ReactJson
-                theme="monokai"
                 collapsed={true}
                 displayDataTypes={false}
                 name="BOW"
                 key="bow"
                 src={data.allDirsBow}
               />
+            </section>
+          )}
+
+          {gridData === 0 ? (
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+              <CircularProgress />
+            </div>
+          ) : (
+            <section className="section-center">
+              <div style={{ height: 600, width: "100%" }}>
+                <DataGrid
+                  rows={gridData.rows}
+                  columns={gridData.columns}
+                  pageSize={100}
+                  rowsPerPageOptions={[100]}
+                  // checkboxSelection
+                  // disableSelectionOnClick
+                />
+              </div>
             </section>
           )}
 
@@ -114,8 +156,8 @@ const Analysis = () => {
           ) : (
             data.nodes.map((subDir, index) => {
               return (
-                <section style={{ backgroundColor: "rgb(39, 40, 34)" }} className="section-center">
-                  <p style={{ color: "wheat" }}>
+                <section key={index} className="section-center">
+                  <p>
                     <span style={{ fontWeight: "bold" }}>Sub-directory: </span>
                     {" " + data.subdirsname[index]}
                   </p>
@@ -124,7 +166,6 @@ const Analysis = () => {
                     name={false}
                     collapsed={[2, true]}
                     displayDataTypes={false}
-                    theme="monokai"
                     src={subDir.map((item) => {
                       // data.nodes[1] is next subdirectory
                       return { id: item.id, node: item.node, text: item.text, terms: item.terms };
