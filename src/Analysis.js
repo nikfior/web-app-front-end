@@ -23,6 +23,7 @@ const drawerWidth = 240;
 const Analysis = () => {
   const [data, setData] = useState({ nodes: 0 });
   const [gridData, setGridData] = useState(0);
+  const [gridData2, setGridData2] = useState(0);
   const navigate = useNavigate();
 
   const makeGridData = (data) => {
@@ -42,6 +43,33 @@ const Analysis = () => {
     }
 
     setGridData({ columns, rows });
+
+    // griddata2
+    let columns2 = data.subdirsname.map((x, i) => {
+      return { field: String(i), headerName: x, width: 130 };
+    });
+
+    columns2.unshift({ field: "-1", headerName: "Terms", width: 130 });
+
+    let rowsNames = [];
+    for (let i = 0; i < data.tfidfNodesMatrix.length; i++) {
+      let temp = 0;
+      for (let j = 0; j < data.tfidfNodesMatrix[i].length; j++) {
+        rowsNames.push(temp);
+        temp++;
+      }
+    }
+
+    let rows2 = [];
+    for (let i = 0; i < data.bm25Terms.length; i++) {
+      let row = { id: i, "-1": rowsNames[i] };
+      for (let j = 0; j < data.tfidfNodesMatrix.length; j++) {
+        row[j] = data.tfidfNodesMatrix[j][i];
+      }
+      rows2.push(row);
+    }
+
+    setGridData2({ columns2, rows2 });
   };
 
   useEffect(() => {
@@ -54,8 +82,8 @@ const Analysis = () => {
         // console.log(data.nodes[0][3].str);
         // console.log(data);
 
-        setData(data);
-        makeGridData(data);
+        setData(data.analysis);
+        makeGridData(data.analysis);
       })
       .catch((error) => {
         if (error.message === "Credentials missing") {
@@ -138,6 +166,25 @@ const Analysis = () => {
                 <DataGrid
                   rows={gridData.rows}
                   columns={gridData.columns}
+                  pageSize={100}
+                  rowsPerPageOptions={[100]}
+                  // checkboxSelection
+                  // disableSelectionOnClick
+                />
+              </div>
+            </section>
+          )}
+
+          {gridData2 === 0 ? (
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+              <CircularProgress />
+            </div>
+          ) : (
+            <section className="section-center">
+              <div style={{ height: 600, width: "100%" }}>
+                <DataGrid
+                  rows={gridData2.rows2}
+                  columns={gridData2.columns2}
                   pageSize={100}
                   rowsPerPageOptions={[100]}
                   // checkboxSelection
