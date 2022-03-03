@@ -17,6 +17,7 @@ import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
 import { DataGrid } from "@mui/x-data-grid";
+import Tooltip from "@mui/material/Tooltip";
 
 const drawerWidth = 240;
 
@@ -31,45 +32,80 @@ const Analysis = () => {
       return { field: String(i), headerName: x, width: 130 };
     });
 
-    columns.unshift({ field: "-1", headerName: "Terms", width: 130 });
+    // flatten nodes in one array to get names and text for the cosine similarity matrix
+    const flatNodes = data.nodes.flat(10);
+
+    columns.unshift({
+      field: "-1",
+      headerName: "Node",
+      width: 130,
+      renderCell: (params) => (
+        <Tooltip
+          title={flatNodes[params.id].node + ": " + flatNodes[params.id].text}
+          placement="left"
+          arrow
+          followCursor
+        >
+          <span>{params.value}</span>
+        </Tooltip>
+      ),
+    });
 
     let rows = [];
-    for (let i = 0; i < data.bm25Terms.length; i++) {
-      let row = { id: i, "-1": data.bm25Terms[i] };
-      for (let j = 0; j < data.bm25Matrix.length; j++) {
-        row[j] = data.bm25Matrix[j][i];
+    for (let i = 0; i < data.cosineSimilarityPerSubd[0].length; i++) {
+      let row = { id: i, "-1": flatNodes[i].id };
+      for (let j = 0; j < data.cosineSimilarityPerSubd.length; j++) {
+        row[j] = data.cosineSimilarityPerSubd[j][i];
       }
       rows.push(row);
     }
 
     setGridData({ columns, rows });
 
-    // griddata2
-    let columns2 = data.subdirsname.map((x, i) => {
-      return { field: String(i), headerName: x, width: 130 };
-    });
+    // let columns = data.subdirsname.map((x, i) => {
+    //   return { field: String(i), headerName: x, width: 130 };
+    // });
 
-    columns2.unshift({ field: "-1", headerName: "Terms", width: 130 });
+    // columns.unshift({ field: "-1", headerName: "Terms", width: 130 });
 
-    let rowsNames = [];
-    for (let i = 0; i < data.tfidfNodesMatrix.length; i++) {
-      let temp = 0;
-      for (let j = 0; j < data.tfidfNodesMatrix[i].length; j++) {
-        rowsNames.push(temp);
-        temp++;
-      }
-    }
+    // let rows = [];
+    // for (let i = 0; i < data.bm25Terms.length; i++) {
+    //   let row = { id: i, "-1": data.bm25Terms[i] };
+    //   for (let j = 0; j < data.bm25Matrix.length; j++) {
+    //     row[j] = data.bm25Matrix[j][i];
+    //   }
+    //   rows.push(row);
+    // }
 
-    let rows2 = [];
-    for (let i = 0; i < data.bm25Terms.length; i++) {
-      let row = { id: i, "-1": rowsNames[i] };
-      for (let j = 0; j < data.tfidfNodesMatrix.length; j++) {
-        row[j] = data.tfidfNodesMatrix[j][i];
-      }
-      rows2.push(row);
-    }
+    // setGridData({ columns, rows });
 
-    setGridData2({ columns2, rows2 });
+    // -----
+    // // griddata2
+    // let columns2 = data.subdirsname.map((x, i) => {
+    //   return { field: String(i), headerName: x, width: 130 };
+    // });
+
+    // columns2.unshift({ field: "-1", headerName: "Terms", width: 130 });
+
+    // let rowsNames = [];
+    // for (let i = 0; i < data.tfidfNodesMatrix.length; i++) {
+    //   let temp = 0;
+    //   for (let j = 0; j < data.tfidfNodesMatrix[i].length; j++) {
+    //     rowsNames.push(temp);
+    //     temp++;
+    //   }
+    // }
+
+    // let rows2 = [];
+    // for (let i = 0; i < data.bm25Terms.length; i++) {
+    //   let row = { id: i, "-1": rowsNames[i] };
+    //   for (let j = 0; j < data.tfidfNodesMatrix.length; j++) {
+    //     row[j] = data.tfidfNodesMatrix[j][i];
+    //   }
+    //   rows2.push(row);
+    // }
+
+    // setGridData2({ columns2, rows2 });
   };
 
   useEffect(() => {
@@ -140,7 +176,7 @@ const Analysis = () => {
         <Box sx={{ flexGrow: 1, p: 3 }}>
           <Toolbar />
 
-          {data.nodes === 0 ? (
+          {/* {data.nodes === 0 ? (
             <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
               <CircularProgress />
             </div>
@@ -154,7 +190,7 @@ const Analysis = () => {
                 src={data.allDirsBow}
               />
             </section>
-          )}
+          )} */}
 
           {gridData === 0 ? (
             <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
@@ -168,6 +204,12 @@ const Analysis = () => {
                   columns={gridData.columns}
                   pageSize={100}
                   rowsPerPageOptions={[100]}
+                  // onCellClick={function (params) {
+                  //   if (params.field === "-1") {
+                  //     const flatNodes = data.nodes.flat(10);
+                  //     console.log(flatNodes[params.id].node + ": " + flatNodes[params.id].text);
+                  //   }
+                  // }}
                   // checkboxSelection
                   // disableSelectionOnClick
                 />
@@ -175,7 +217,7 @@ const Analysis = () => {
             </section>
           )}
 
-          {gridData2 === 0 ? (
+          {/* {gridData2 === 0 ? (
             <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
               <CircularProgress />
             </div>
@@ -192,7 +234,7 @@ const Analysis = () => {
                 />
               </div>
             </section>
-          )}
+          )} */}
 
           {data.nodes === 0 ? (
             <section className="section-center">
