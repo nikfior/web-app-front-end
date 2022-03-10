@@ -28,8 +28,12 @@ const Analysis = () => {
   const navigate = useNavigate();
 
   const makeGridData = (data) => {
-    let columns = data.subdirsname.map((x, i) => {
-      return { field: String(i), headerName: x, width: 130 };
+    const subdirsnameWithoutDomain = data.subdirsname.map((x) => {
+      return x.substring(x.indexOf("/", 8));
+    });
+
+    let columns = subdirsnameWithoutDomain.map((x, i) => {
+      return { field: String(i), headerName: x, minWidth: 100, flex: 1 };
     });
 
     // flatten nodes in one array to get names and text for the cosine similarity matrix
@@ -197,7 +201,7 @@ const Analysis = () => {
               <CircularProgress />
             </div>
           ) : (
-            <section className="section-center">
+            <section className="section-center" style={{ maxWidth: "70rem" }}>
               <div style={{ height: 600, width: "100%" }}>
                 <DataGrid
                   rows={gridData.rows}
