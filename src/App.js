@@ -18,10 +18,10 @@ function App() {
       })
       .catch((error) => {
         if (error.message === "Credentials missing") {
-          if (window.location.search) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const jwttoken = urlParams.get("jwttoken");
-            document.cookie = "jwttoken=" + jwttoken + ";max-age=2592000";
+          const urlParams = new URLSearchParams(window.location.search);
+          const jwttoken = urlParams.get("jwttoken");
+          if (jwttoken) {
+            document.cookie = "jwttokenFront=" + jwttoken + ";max-age=2592000";
             navigate("/view");
           }
         } else {

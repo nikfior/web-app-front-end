@@ -2,9 +2,9 @@ const getDataCheckSession = async (url) => {
   try {
     const MyCookies = document.cookie;
 
-    if (MyCookies.includes("jwttoken=")) {
+    if (MyCookies.includes("jwttokenFront=")) {
       const jwttoken = MyCookies.split("; ")
-        .find((x) => x.startsWith("jwttoken="))
+        .find((x) => x.startsWith("jwttokenFront="))
         .split("=")[1];
 
       const response = await fetch("https://nikfior-back-end.herokuapp.com/login/success", {
@@ -30,7 +30,7 @@ const getDataCheckSession = async (url) => {
       }
 
       // wrong token so clear cookie
-      document.cookie = "jwttoken=; expires=Thu, 01 Jan 1970 00:00:01 UTC";
+      document.cookie = "jwttokenFront=; expires=Thu, 01 Jan 1970 00:00:01 UTC";
       throw new Error("Credentials missing");
     }
 
