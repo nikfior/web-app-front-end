@@ -22,7 +22,9 @@ import Tooltip from "@mui/material/Tooltip";
 import { TagCloud } from "react-tagcloud";
 import { Tab, Tabs } from "@mui/material";
 import { TabPanel, TabList, TabContext } from "@mui/lab";
-// import { Graphviz } from "graphviz-react";
+import { Graphviz } from "graphviz-react";
+
+import "./Analysis.css";
 
 const drawerWidth = 240;
 
@@ -32,6 +34,7 @@ const Analysis = () => {
   const [gridData, setGridData] = useState(0);
   const [gridData2, setGridData2] = useState(0);
   const [dotData, setDotData] = useState("");
+  const [gspanOutData, setGspanOutData] = useState("");
   const [HTMLData, setHTMLData] = useState("");
   const [value, setValue] = useState("1");
   const navigate = useNavigate();
@@ -134,9 +137,11 @@ const Analysis = () => {
         setData(data.analysis);
         // makeGridData(data.analysis);
 
-        setDotData(data.analysis.dotgraphs);
+        setDotData(data.analysis.dotgraphTrees);
         setHTMLData(data.analysis.backRenderedDoms);
-        console.log(dotData);
+        setGspanOutData(data.analysis.gspanOut);
+        // console.log(data.analysis.gspanOut);
+        // console.log(data.analysis.backRenderedDoms);
         // let tdatatag = [[], [], [], [], [], []];
         // console.log(data);
         // let tdatatag = [];
@@ -177,37 +182,111 @@ const Analysis = () => {
   // TODO check how I can make the BOW ReactJson go above the map elements
   return (
     <div>
-      <section className="section-center" style={{ maxHeight: "50rem" }}>
-        {/* <Graphviz
-          dot={`digraph 0 { "example\nillustration\ninstance\nrepresentative\nmodel\nexemplar\ngood_example\ndeterrent_example\nlesson\nobject_lesson\ncase\nexercise\nsphere\ndomain\narea\norbit\nfield\narena\ndemesne\nland\ndomain_of_a_function\nworld\nknowledge_domain\nknowledge_base" -> "sphere\ndomain\narea\norbit\nfield\narena\ndemesne\nland\ndomain_of_a_function\nworld\nknowledge_domain\nknowledge_base\nuse\nusage\nutilization\nutilisation\nemployment\nexercise\nfunction\npurpose\nrole\nconsumption\neconomic_consumption\nusance\nuse_of_goods_and_services\nhabit\nmanipulation\nenjoyment\nutilize\nutilise\napply\nemploy\nhabituate\nexpend\npractice\nexemplifying\nillustrative\ndemonstrative\nexample\nillustration\ninstance\nrepresentative\nmodel\nexemplar\ngood_example\ndeterrent_example\nlesson\nobject_lesson\ncase\nexercise\ndocument\nwritten_document\npapers\ntext_file\nuse\nusage\nutilization\nutilisation\nemployment\nexercise\nfunction\npurpose\nrole\nconsumption\neconomic_consumption\nusance\nuse_of_goods_and_services\nhabit\nmanipulation\nenjoyment\nutilize\nutilise\napply\nemploy\nhabituate\nexpend\npractice\nsphere\ndomain\narea\norbit\nfield\narena\ndemesne\nland\ndomain_of_a_function\nworld\nknowledge_domain\nknowledge_base\nliterature\nlit\nanterior\nprior(a)\nprior\ncoordination\nrequest\nasking\npermission\nlicense\npermit" }`}
-          options={{ height: "230", zoom: true }}
-        /> */}
-      </section>
+      {/* <section className="section-center" style={{ maxHeight: "50rem" }}>
+        <>{console.log(dotData)}</>
+        {dotData?
+        <Graphviz
+          dot={dotData[0].join("\n")}
+          options={{ height: "230", zoom: true }}  
+        />: <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+        <CircularProgress />
+      </div>
+      }
+      </section> */}
 
-      <section className="section-center" style={{ maxHeight: "80vh", height: "80vh" }}>
-        {/* <iframe
-          title="rendered"
-          style={{ width: "100%", height: "100%" }}
-          srcdoc={HTMLData[1] || HTMLData[0]}
-        ></iframe> */}
+      <section
+        className="section-center"
+        style={{ maxHeight: "80vh", height: "80vh", maxWidth: "70vw", width: "70vw", display: "flex" }}
+      >
         <Box sx={{ width: "100%", typography: "body1" }}>
           <TabContext value={value}>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <TabList onChange={handleChange} aria-label="lab API tabs example">
-                <Tab label="Item One" value="1" />
-                <Tab label="Item Two" value="2" />
-                <Tab label="Item Three" value="3" />
+              <TabList
+                onChange={handleChange}
+                variant="scrollable"
+                scrollButtons
+                allowScrollButtonsMobile
+                aria-label="rendered html doms"
+              >
+                {dotData
+                  ? dotData.dotgraphs.map((graph, index) => {
+                      return (
+                        <Tab
+                          label={graph[0].substring(0, graph[0].lastIndexOf(" "))}
+                          key={index}
+                          value={(index + 1).toString()}
+                        />
+                      );
+                    })
+                  : null}
               </TabList>
             </Box>
-            <TabPanel value="1">Item One</TabPanel>
-            <TabPanel value="2">Item Two</TabPanel>
-            <TabPanel value="3">
-              <iframe
-                title="rendered"
-                style={{ width: "100%", height: "100%" }}
-                srcdoc={HTMLData[1] || HTMLData[0]}
-              ></iframe>
-            </TabPanel>
+            {dotData && gspanOutData ? (
+              dotData.dotgraphs.map((graph, index) => {
+                graph.splice(
+                  1,
+                  0,
+                  `label="Support: ${gspanOutData.support[index]}\nSubdirectories: [${gspanOutData.where[
+                    index
+                  ].toString()}]"`
+                );
+                return (
+                  <TabPanel
+                    key={index}
+                    value={(index + 1).toString()}
+                    style={{ height: "-webkit-fill-available", paddingBottom: "50px" }}
+                  >
+                    <Graphviz dot={graph.join("\n")} options={{ zoom: true, height: "100%" }} />
+                  </TabPanel>
+                );
+              })
+            ) : (
+              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                <CircularProgress />
+              </div>
+            )}
+          </TabContext>
+        </Box>
+      </section>
+
+      <section
+        className="section-center"
+        style={{ maxHeight: "80vh", height: "80vh", maxWidth: "70vw", width: "70vw", display: "flex" }}
+      >
+        <Box sx={{ width: "100%", typography: "body1" }}>
+          <TabContext value={value}>
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <TabList
+                onChange={handleChange}
+                variant="scrollable"
+                scrollButtons
+                allowScrollButtonsMobile
+                aria-label="rendered html doms"
+              >
+                {data.nodes
+                  ? data.subdirsname.map((url, index) => {
+                      return <Tab label={url} key={index} value={(index + 1).toString()} />;
+                    })
+                  : null}
+              </TabList>
+            </Box>
+            {HTMLData ? (
+              HTMLData.map((html, index) => {
+                return (
+                  <TabPanel
+                    key={index}
+                    value={(index + 1).toString()}
+                    style={{ height: "-webkit-fill-available", paddingBottom: "50px" }}
+                  >
+                    <iframe title="rendered" style={{ width: "100%", height: "100%" }} srcDoc={html}></iframe>
+                  </TabPanel>
+                );
+              })
+            ) : (
+              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                <CircularProgress />
+              </div>
+            )}
           </TabContext>
         </Box>
       </section>
