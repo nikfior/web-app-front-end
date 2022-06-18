@@ -30,13 +30,15 @@ const drawerWidth = 240;
 
 const Analysis = () => {
   const [data, setData] = useState({ nodes: 0 });
+  const [status, setStatus] = useState("");
   const [datatag, setDatatag] = useState([[{ value: "loading", count: 0 }]]);
   const [gridData, setGridData] = useState(0);
   const [gridData2, setGridData2] = useState(0);
   const [dotData, setDotData] = useState("");
   const [gspanOutData, setGspanOutData] = useState("");
   const [HTMLData, setHTMLData] = useState("");
-  const [value, setValue] = useState("1");
+  const [valueTab, setValueTab] = useState("1");
+  const [valueTab2, setValueTab2] = useState("1");
   const navigate = useNavigate();
 
   const makeGridData = (data) => {
@@ -135,11 +137,12 @@ const Analysis = () => {
         // console.log(data);
 
         setData(data.analysis);
+        setStatus(data.status);
         // makeGridData(data.analysis);
 
         setDotData(data.analysis.dotgraphTrees);
         setHTMLData(data.analysis.backRenderedDoms);
-        setGspanOutData(data.analysis.gspanOut);
+        // setGspanOutData(data.analysis.gspanOut);
         // console.log(data.analysis.gspanOut);
         // console.log(data.analysis.backRenderedDoms);
         // let tdatatag = [[], [], [], [], [], []];
@@ -175,13 +178,31 @@ const Analysis = () => {
     //
   }, []);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const handleChangeTab = (event, newValue) => {
+    setValueTab(newValue);
+  };
+
+  const handleChangeTab2 = (event, newValue) => {
+    setValueTab2(newValue);
   };
 
   // TODO check how I can make the BOW ReactJson go above the map elements
   return (
     <div>
+      <section className="section-center" style={{ maxWidth: "fit-content" }}>
+        <p>
+          <span style={{ fontWeight: "bold" }}>
+            {status ? (
+              [status.split(". ")[0], <br />, status.split(". ")[1]]
+            ) : (
+              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                <CircularProgress />
+              </div>
+            )}
+          </span>
+        </p>
+      </section>
+
       {/* <section className="section-center" style={{ maxHeight: "50rem" }}>
         <>{console.log(dotData)}</>
         {dotData?
@@ -199,10 +220,10 @@ const Analysis = () => {
         style={{ maxHeight: "80vh", height: "80vh", maxWidth: "70vw", width: "70vw", display: "flex" }}
       >
         <Box sx={{ width: "100%", typography: "body1" }}>
-          <TabContext value={value}>
+          <TabContext value={valueTab}>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
               <TabList
-                onChange={handleChange}
+                onChange={handleChangeTab}
                 variant="scrollable"
                 scrollButtons
                 allowScrollButtonsMobile
@@ -221,12 +242,12 @@ const Analysis = () => {
                   : null}
               </TabList>
             </Box>
-            {dotData && gspanOutData ? (
+            {dotData ? (
               dotData.dotgraphs.map((graph, index) => {
                 graph.splice(
                   1,
                   0,
-                  `label="Support: ${gspanOutData.support[index]}\nSubdirectories: [${gspanOutData.where[
+                  `label="Support: ${dotData.dotSupport[index]}\nSubdirectories: [${dotData.dotWhere[
                     index
                   ].toString()}]"`
                 );
@@ -254,10 +275,10 @@ const Analysis = () => {
         style={{ maxHeight: "80vh", height: "80vh", maxWidth: "70vw", width: "70vw", display: "flex" }}
       >
         <Box sx={{ width: "100%", typography: "body1" }}>
-          <TabContext value={value}>
+          <TabContext value={valueTab2}>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
               <TabList
-                onChange={handleChange}
+                onChange={handleChangeTab2}
                 variant="scrollable"
                 scrollButtons
                 allowScrollButtonsMobile
@@ -303,8 +324,25 @@ const Analysis = () => {
       <TagCloud minSize={8} maxSize={31} tags={datatag[5]} />
       <hr></hr> */}
       <Box sx={{ display: "flex" }}>
-        <CssBaseline />
-        {/* <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <Box sx={{ flexGrow: 1, p: 3 }}>
+          {data.nodes === 0 ? (
+            <section className="section-center">
+              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                <CircularProgress />
+              </div>
+            </section>
+          ) : (
+            <section className="section-center">
+              <p>
+                <span style={{ fontWeight: "bold" }}>Cluster Details: </span>
+              </p>
+
+              <ReactJson name={false} collapsed={true} displayDataTypes={false} src={data.maxAllres} />
+            </section>
+          )}
+
+          {/* <CssBaseline /> */}
+          {/* <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
           <Toolbar>
             <Typography variant="h6" noWrap component="div">
               Sub-directories
@@ -340,8 +378,8 @@ const Analysis = () => {
             </List>
           </Box>
         </Drawer> */}
-        <Box sx={{ flexGrow: 1, p: 3 }}>
-          <Toolbar />
+
+          {/* <Toolbar /> */}
 
           {/* {data.nodes === 0 ? (
             <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
@@ -359,6 +397,7 @@ const Analysis = () => {
             </section>
           )} */}
 
+          {/* // ----
           {gridData === 0 ? (
             <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
               <CircularProgress />
@@ -383,6 +422,8 @@ const Analysis = () => {
               </div>
             </section>
           )}
+
+// --- */}
 
           {/* {gridData2 === 0 ? (
             <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
@@ -444,8 +485,6 @@ const Analysis = () => {
               );
             })
           )}
-
-          {/*  */}
         </Box>
       </Box>
     </div>
