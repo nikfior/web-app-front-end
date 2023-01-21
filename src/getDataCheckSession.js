@@ -7,7 +7,7 @@ const getDataCheckSession = async (url) => {
         .find((x) => x.startsWith("jwttokenFront="))
         .split("=")[1];
 
-      const response = await fetch("https://nikfior-back-end.herokuapp.com/login/success", {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND}login/success`, {
         headers: {
           "Custom-Authorization": jwttoken,
         },

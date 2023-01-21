@@ -60,7 +60,7 @@ const MainView = () => {
   };
 
   useEffect(() => {
-    getDataCheckSession("https://nikfior-back-end.herokuapp.com/api/sites/getMenu")
+    getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/getMenu`)
       .then((data) => {
         let list = [];
         let i;

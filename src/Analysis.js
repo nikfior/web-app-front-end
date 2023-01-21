@@ -132,7 +132,7 @@ const Analysis = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("id");
 
-    getDataCheckSession("https://nikfior-back-end.herokuapp.com/api/sites/analysis?id=" + id)
+    getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/analysis?id=${id}`)
       .then((data) => {
         // console.log(data.nodes[0][3].str);
         // console.log(data);

@@ -9,10 +9,7 @@ const Login = () => {
           <h2>Login</h2>
 
           <a
-            href={
-              "http://nikfior-back-end.herokuapp.com/login/github?frontend_redirect_callback=" +
-              process.env.REACT_APP_FRONTEND_REDIRECT_CALLBACK
-            }
+            href={`${process.env.REACT_APP_BACKEND}login/github?frontend_redirect_callback="${process.env.REACT_APP_FRONTEND_REDIRECT_CALLBACK}`}
           >
             <button type="button" className="submit-btn">
               <GitHubIcon fontSize="large" />
