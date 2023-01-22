@@ -36,9 +36,9 @@ const Analysis = () => {
   const [gridData2, setGridData2] = useState(0);
   const [dotData, setDotData] = useState("");
   const [gspanOutData, setGspanOutData] = useState("");
-  const [valueTabNodeRenderedDoms, setValueTabNodeRenderedDoms] = useState("1");
-  const [valueTabDotGraphAndRender, setValueTabDotGraphAndRender] = useState("1");
-  const [valueTabDotRendersSubdir, setValueTabDotRendersSubdir] = useState("1");
+  const [valueTabNodeRenderedDoms, setValueTabNodeRenderedDoms] = useState("0");
+  const [valueTabDotGraphAndRender, setValueTabDotGraphAndRender] = useState("0");
+  const [valueTabDotRendersSubdir, setValueTabDotRendersSubdir] = useState("0");
 
   const navigate = useNavigate();
 
@@ -141,7 +141,8 @@ const Analysis = () => {
         setStatus(data.status);
         // makeGridData(data.analysis);
 
-        setDotData(data.analysis.dotgraphTrees);
+        // setDotData(data.analysis.dotgraphTrees);
+
         // setGspanOutData(data.analysis.gspanOut);
         // console.log(data.analysis.gspanOut);
         // console.log(data.analysis.backRenderedDoms);
@@ -184,7 +185,7 @@ const Analysis = () => {
 
   const handleChangeTabDotGraphAndRenders = (event, newValue) => {
     // also reset subdir tab to one
-    setValueTabDotRendersSubdir("1");
+    setValueTabDotRendersSubdir("0");
     // handleChangeTabDotRendersSubdir(null, 1);
 
     setValueTabDotGraphAndRender(newValue);
@@ -197,11 +198,18 @@ const Analysis = () => {
   // TODO check how I can make the BOW ReactJson go above the map elements
   return (
     <div>
-      <section className="section-center" style={{ maxWidth: "fit-content" }}>
+      <section className="section-center" style={{ maxWidth: "70vw", width: "70vw", display: "flex" }}>
         <p>
           <span style={{ fontWeight: "bold" }}>
             {status ? (
-              [status.split(". ")[0], <br />, status.split(". ")[1]]
+              status.split(".").map((x, index) => {
+                return (
+                  <React.Fragment key={index}>
+                    {x}
+                    <br />
+                  </React.Fragment>
+                );
+              })
             ) : (
               <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
                 <CircularProgress />
@@ -238,32 +246,32 @@ const Analysis = () => {
                 allowScrollButtonsMobile
                 aria-label="rendered html doms"
               >
-                {dotData
-                  ? dotData.dotgraphs.map((graph, index) => {
+                {data
+                  ? data.dotgraphTrees.dotGraphs.map((graph, index) => {
                       return (
                         <Tab
                           label={graph[0].substring(0, graph[0].lastIndexOf(" "))}
                           key={index}
-                          value={(index + 1).toString()}
+                          value={index.toString()}
                         />
                       );
                     })
                   : null}
               </TabList>
             </Box>
-            {dotData ? (
-              dotData.dotgraphs.map((graph, index) => {
+            {data ? (
+              data.dotgraphTrees.dotGraphs.map((graph, index) => {
                 graph.splice(
                   1,
                   0,
-                  `label="Support: ${dotData.dotSupport[index]}\nSubdirectories: [${dotData.dotWhere[
-                    index
-                  ].toString()}]"`
+                  `label="Support: ${
+                    data.dotgraphTrees.dotSupport[index]
+                  }\nSubdirectories: [${data.dotgraphTrees.dotWhere[index].toString()}]"`
                 );
                 return (
                   <TabPanel
                     key={index}
-                    value={(index + 1).toString()}
+                    value={index.toString()}
                     style={{ height: "-webkit-fill-available", paddingBottom: "50px" }}
                   >
                     <Graphviz dot={graph.join("\n")} options={{ zoom: true, height: "100%" }} />
@@ -294,25 +302,29 @@ const Analysis = () => {
                 allowScrollButtonsMobile
                 aria-label="rendered html doms"
               >
-                {dotData
-                  ? dotData.dotgraphs.map((graph, index) => {
+                {data
+                  ? data.dotgraphTrees.dotGraphs.map((graph, index) => {
                       return (
                         <Tab
-                          label={graph[0].substring(0, graph[0].lastIndexOf(" "))}
+                          label={
+                            graph[0].substring(0, graph[0].lastIndexOf(" ")) +
+                            "; " +
+                            valueTabDotGraphAndRender
+                          }
                           key={index}
-                          value={(index + 1).toString()}
+                          value={index.toString()}
                         />
                       );
                     })
                   : null}
               </TabList>
             </Box>
-            {dotData ? (
-              dotData.dotgraphBackRenderedDoms.map((renderedDoms, index) => {
+            {data ? (
+              data.dotgraphTrees.dotGraphs.map((graph, index) => {
                 return (
                   <TabPanel
                     key={index}
-                    value={(index + 1).toString()}
+                    value={index.toString()}
                     style={{ height: "-webkit-fill-available", paddingBottom: "50px" }}
                   >
                     <Box sx={{ width: "100%", typography: "body1" }} style={{ height: "100%" }}>
@@ -325,34 +337,40 @@ const Analysis = () => {
                             allowScrollButtonsMobile
                             aria-label="rendered html doms"
                           >
-                            {dotData.dotgraphBackRenderedDoms.map((renderedDoms, index) => {
+                            {data.backRenderedDoms.map((dom, index) => {
                               return (
                                 <Tab
-                                  label={`Subdirectory ${dotData.dotWhere[valueTabDotGraphAndRender][index]}`}
+                                  label={`Subdirectory ${data.dotgraphTrees.dotWhere[valueTabDotGraphAndRender][index]}`}
                                   key={index}
-                                  value={(index + 1).toString()}
+                                  value={index.toString()}
                                 />
                               );
                             })}
                           </TabList>
                         </Box>
-                        {dotData.dotgraphBackRenderedDoms[valueTabDotGraphAndRender].map(
-                          (renderedDoms, index) => {
-                            return (
-                              <TabPanel
-                                key={index}
-                                value={(index + 1).toString()}
-                                style={{ height: "-webkit-fill-available", paddingBottom: "50px" }}
-                              >
-                                <iframe
-                                  title="rendered"
-                                  style={{ width: "100%", height: "100%" }}
-                                  srcDoc={renderedDoms}
-                                ></iframe>
-                              </TabPanel>
-                            );
-                          }
-                        )}
+                        {data.backRenderedDoms.map((html, index) => {
+                          const dom = new DOMParser().parseFromString(html, "text/html");
+                          dom
+                            .querySelectorAll(`[digraphLabelStylize*=";${valueTabDotGraphAndRender};"]`)
+                            .forEach((d) => {
+                              const color =
+                                d.getAttribute("nodelabelandcolorstylize")?.split(";")[1] || "red";
+                              d.style.cssText += `;border-style: solid;border-color: ${color};border-width: thick;`;
+                            });
+                          return (
+                            <TabPanel
+                              key={index}
+                              value={index.toString()}
+                              style={{ height: "-webkit-fill-available", paddingBottom: "50px" }}
+                            >
+                              <iframe
+                                title="rendered"
+                                style={{ width: "100%", height: "100%" }}
+                                srcDoc={dom.documentElement.outerHTML}
+                              ></iframe>
+                            </TabPanel>
+                          );
+                        })}
                       </TabContext>
                     </Box>
                   </TabPanel>
@@ -384,22 +402,29 @@ const Analysis = () => {
               >
                 {data
                   ? data.backRenderedDoms.map((html, index) => {
-                      return (
-                        <Tab label={data.subdirsname[index]} key={index} value={(index + 1).toString()} />
-                      );
+                      return <Tab label={data.subdirsname[index]} key={index} value={index.toString()} />;
                     })
                   : null}
               </TabList>
             </Box>
             {data ? (
               data.backRenderedDoms.map((html, index) => {
+                const dom = new DOMParser().parseFromString(html, "text/html");
+                dom.querySelectorAll(`[nodeLabelAndColorStylize]`).forEach((d) => {
+                  const color = d.getAttribute("nodelabelandcolorstylize").split(";")[1];
+                  d.style.cssText += `border-style: solid;border-color: ${color};border-width: thick;`;
+                });
                 return (
                   <TabPanel
                     key={index}
-                    value={(index + 1).toString()}
+                    value={index.toString()}
                     style={{ height: "-webkit-fill-available", paddingBottom: "50px" }}
                   >
-                    <iframe title="rendered" style={{ width: "100%", height: "100%" }} srcDoc={html}></iframe>
+                    <iframe
+                      title="rendered"
+                      style={{ width: "100%", height: "100%" }}
+                      srcDoc={dom.documentElement.outerHTML}
+                    ></iframe>
                   </TabPanel>
                 );
               })
