@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
-const List = ({ items, removeItem, editItem }) => {
+const List = ({ items, queries, removeItem, editItem }) => {
   let navigate = useNavigate();
 
   return (
@@ -14,15 +14,31 @@ const List = ({ items, removeItem, editItem }) => {
             className="sites-item"
             key={id}
             onClick={(e) => {
-              navigate("/analysis?id=" + id);
+              navigate(`/analysis?id=${id}${queries[id] || ""}`);
             }}
           >
-            <p className="title">{url}</p>
-            <div className="btn-container">
-              <button type="button" className="edit-btn" onClick={() => editItem(id)}>
+            <p className="title" style={{ cursor: "pointer" }}>
+              {url}
+            </p>
+            <div className="btn-container" style={{ display: "flex" }}>
+              <button
+                type="button"
+                className="edit-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  editItem(id);
+                }}
+              >
                 <FaEdit />
               </button>
-              <button type="button" className="delete-btn" onClick={() => removeItem(id)}>
+              <button
+                type="button"
+                className="delete-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeItem(id);
+                }}
+              >
                 <FaTrash />
               </button>
             </div>

@@ -132,7 +132,11 @@ const Analysis = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("id");
 
-    getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/analysis?id=${id}`)
+    // if(id && ([...urlParams.entries()].length)>1){
+
+    // }
+
+    getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/analysis?${urlParams.toString()}`)
       .then((data) => {
         // console.log(data.nodes[0][3].str);
         // console.log(data);
@@ -198,26 +202,31 @@ const Analysis = () => {
   // TODO check how I can make the BOW ReactJson go above the map elements
   return (
     <div>
-      <section className="section-center" style={{ maxWidth: "70vw", width: "70vw", display: "flex" }}>
-        <p>
+      {status ? (
+        <section className="section-center" style={{ maxWidth: "70vw", width: "70vw", display: "flex" }}>
           <span style={{ fontWeight: "bold" }}>
-            {status ? (
-              status.split(".").map((x, index) => {
-                return (
-                  <React.Fragment key={index}>
-                    {x}
-                    <br />
-                  </React.Fragment>
-                );
-              })
-            ) : (
-              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-                <CircularProgress />
-              </div>
-            )}
+            {status.split(".").map((x, index) => {
+              return (
+                <React.Fragment key={index}>
+                  {x}
+                  <br />
+                </React.Fragment>
+              );
+            })}
           </span>
-        </p>
-      </section>
+        </section>
+      ) : (
+        <section
+          className="section-center"
+          style={{ maxWidth: "70vw", width: "70vw", display: "flex", justifyContent: "center" }}
+        >
+          <span style={{ fontWeight: "bold" }}>
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+              <CircularProgress />
+            </div>
+          </span>
+        </section>
+      )}
 
       {/* <section className="section-center" style={{ maxHeight: "50rem" }}>
         <>{console.log(dotData)}</>
@@ -450,7 +459,7 @@ const Analysis = () => {
       <hr></hr> */}
       <Box sx={{ display: "flex" }}>
         <Box sx={{ flexGrow: 1, p: 3 }}>
-          {data === "" ? (
+          {!data ? (
             <section className="section-center">
               <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
                 <CircularProgress />
@@ -569,7 +578,7 @@ const Analysis = () => {
             </section>
           )} */}
 
-          {data === "" ? (
+          {!data ? (
             <section className="section-center">
               <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
                 <CircularProgress />
