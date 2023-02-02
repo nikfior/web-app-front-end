@@ -16,6 +16,7 @@ const MainView = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [placeholder, setPlaceholder] = useState("url");
   const [queries, setQueries] = useState({});
+  const [slowCrawl, setSlowCrawl] = useState(false);
   const [editID, setEditID] = useState(null);
   const [alert, setAlert] = useState({ show: false, msg: "", type: "" });
 
@@ -36,7 +37,7 @@ const MainView = () => {
       // add new site for scraping
 
       //// e.target[0].value instead of name for better sync
-      getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/`, "POST", { url: name })
+      getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/`, "POST", { url: name, slowCrawl })
         .then((data) => {
           // showAlert(true, "danger", `${data.msg}`);
           const alertType = data.msg.startsWith("The site is being scraped") ? "success" : "danger";
@@ -135,6 +136,7 @@ const MainView = () => {
             <input
               type="text"
               className="sites"
+              style={{ maxHeight: "4rem" }}
               placeholder={placeholder}
               value={name}
               onChange={(e) => {
@@ -144,9 +146,35 @@ const MainView = () => {
                 }
               }}
             />
-            <button type="submit" className="submit-btn" style={{ margin: "1rem 0rem 1rem 1rem" }}>
-              {isEditing ? "edit" : "submit"}
-            </button>
+            <div style={{ display: "flex", flexDirection: "column", margin: "0.5rem" }}>
+              <button
+                type="submit"
+                className="submit-btn"
+                style={{ margin: "0rem 0rem 0.5rem 0rem", maxHeight: "2rem" }}
+              >
+                {isEditing ? "edit" : "submit"}
+              </button>
+              <div
+                style={{ display: "flex", flexWrap: "nowrap", flexDirection: "row", alignItems: "baseline" }}
+              >
+                <input
+                  type="checkbox"
+                  id="slowcrawl"
+                  name="slowcrawl"
+                  value="slowcrawl"
+                  disabled={isEditing}
+                  onChange={(e) => {
+                    setSlowCrawl(e.target.checked);
+                  }}
+                />
+                <label
+                  htmlFor="slowcrawl"
+                  style={{ marginLeft: "0.2rem", whiteSpace: "nowrap", fontSize: "0.8rem" }}
+                >
+                  Slower Crawl
+                </label>
+              </div>
+            </div>
           </div>
         </form>
 

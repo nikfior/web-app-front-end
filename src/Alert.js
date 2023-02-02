@@ -7,7 +7,11 @@ const Alert = ({ type, msg, removeAlert, list }) => {
     }, 3000);
     return () => clearTimeout(timeout);
   }, [list, removeAlert]);
-  return <p className={`alert alert-${type}`}>{msg}</p>;
+  return (
+    <p className={`alert alert-${type}`} style={{ height: "auto" }}>
+      {msg}
+    </p>
+  );
 };
 
 export default Alert;
