@@ -316,9 +316,8 @@ const Analysis = () => {
                       return (
                         <Tab
                           label={
-                            graph[0].substring(0, graph[0].lastIndexOf(" ")) +
-                            "; " +
-                            valueTabDotGraphAndRender
+                            graph[0].substring(0, graph[0].lastIndexOf(" ")) + "; "
+                            //+ valueTabDotGraphAndRender // the index of the graph I am in
                           }
                           key={index}
                           value={index.toString()}
@@ -364,7 +363,9 @@ const Analysis = () => {
                             .forEach((d) => {
                               const color =
                                 d.getAttribute("nodelabelandcolorstylize")?.split(";")[1] || "red";
-                              d.style.cssText += `;border-style: solid;border-color: ${color};border-width: thick;`;
+                              d.style.cssText += `;border-style: solid;border-color: ${color};border-width: thick;${
+                                d.tagName === "A" && d.childNodes.length !== 1 ? " display: block;" : ""
+                              }`;
                             });
                           return (
                             <TabPanel
@@ -421,7 +422,9 @@ const Analysis = () => {
                 const dom = new DOMParser().parseFromString(html, "text/html");
                 dom.querySelectorAll(`[nodeLabelAndColorStylize]`).forEach((d) => {
                   const color = d.getAttribute("nodelabelandcolorstylize").split(";")[1];
-                  d.style.cssText += `border-style: solid;border-color: ${color};border-width: thick;`;
+                  d.style.cssText += `border-style: solid;border-color: ${color};border-width: thick;${
+                    d.tagName === "A" && d.childNodes.length !== 1 ? " display: block;" : ""
+                  }`;
                 });
                 return (
                   <TabPanel
@@ -472,6 +475,22 @@ const Analysis = () => {
               </p>
 
               <ReactJson name={false} collapsed={true} displayDataTypes={false} src={data.maxAllres} />
+            </section>
+          )}
+
+          {!data ? (
+            <section className="section-center">
+              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                <CircularProgress />
+              </div>
+            </section>
+          ) : (
+            <section className="section-center">
+              <p>
+                <span style={{ fontWeight: "bold" }}>Clustered Bow: </span>
+              </p>
+
+              <ReactJson name={false} collapsed={true} displayDataTypes={false} src={data.clusteredBow} />
             </section>
           )}
 
