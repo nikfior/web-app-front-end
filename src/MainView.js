@@ -102,9 +102,11 @@ const MainView = () => {
         const tempList = data.sites.map((site) => {
           return {
             url: site.url,
-            id: site._id,
+            id: site.id,
             parameters: site.parameters,
+            scrapeStatus: site.scrapeStatus,
             status: site.status,
+            analyses: site.analyses,
           };
         });
 

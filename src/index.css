@@ -243,6 +243,7 @@ Sites List
 
 .sites-item {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.5rem;
@@ -260,6 +261,8 @@ Sites List
 }
 .title {
   margin-bottom: 0;
+  overflow: auto;
+  max-width: 90%;
   color: var(--clr-grey-1);
   letter-spacing: 2px;
   transition: var(--transition);
