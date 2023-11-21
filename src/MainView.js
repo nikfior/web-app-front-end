@@ -148,6 +148,7 @@ const MainView = () => {
   };
 
   useEffect(() => {
+    document.title = "Main Menu";
     refreshListItems();
 
     //

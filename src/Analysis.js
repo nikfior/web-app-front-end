@@ -23,6 +23,13 @@ import { TagCloud } from "react-tagcloud";
 import { Tab, Tabs } from "@mui/material";
 import { TabPanel, TabList, TabContext } from "@mui/lab";
 import { Graphviz } from "graphviz-react";
+import BottomNavigation from "@mui/material/BottomNavigation";
+import BottomNavigationAction from "@mui/material/BottomNavigationAction";
+import RestoreIcon from "@mui/icons-material/Restore";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import ArchiveIcon from "@mui/icons-material/Archive";
+import Paper from "@mui/material/Paper";
+import ListItemButton from "@mui/material/ListItemButton";
 
 import "./Analysis.css";
 
@@ -30,7 +37,7 @@ const drawerWidth = 240;
 
 const Analysis = () => {
   const [data, setData] = useState("");
-  const [status, setStatus] = useState("");
+  const [extraData, setExtraData] = useState("");
   const [datatag, setDatatag] = useState([[{ value: "loading", count: 0 }]]);
   const [gridData, setGridData] = useState(0);
   const [gridData2, setGridData2] = useState(0);
@@ -39,6 +46,14 @@ const Analysis = () => {
   const [valueTabNodeRenderedDoms, setValueTabNodeRenderedDoms] = useState("0");
   const [valueTabDotGraphAndRender, setValueTabDotGraphAndRender] = useState("0");
   const [valueTabDotRendersSubdir, setValueTabDotRendersSubdir] = useState("0");
+  const [dataDotgraphTrees, setDataDotgraphTrees] = useState("");
+  const [dataMaxAllres, setDataMaxAllres] = useState("");
+  const [dataClusteredBow, setDataClusteredBow] = useState("");
+  const [methodDigraphLabelStylize, setMethodDigraphLabelStylize] = useState("digraphLabelStylizeKmeans");
+  const [methodNodelabelandcolorstylize, setMethodNodelabelandcolorstylize] = useState(
+    "nodeLabelAndColorStylizeKmeans"
+  );
+  const [bottomNavigationValue, setBottomNavigationValue] = React.useState(0);
 
   const navigate = useNavigate();
 
@@ -127,10 +142,41 @@ const Analysis = () => {
     // setGridData2({ columns2, rows2 });
   };
 
+  const changeClusteringMethod = (method) => {
+    if (data === "") {
+      console.log("data was not set");
+      return;
+    }
+    if (method === 0 || method === "kmeans") {
+      setDataDotgraphTrees(data.dotgraphTreesKmeans);
+      setDataMaxAllres(data.maxAllresKmeans);
+      setDataClusteredBow(data.clusteredBowKmeans);
+      setMethodDigraphLabelStylize("digraphLabelStylizeKmeans");
+      setMethodNodelabelandcolorstylize("nodeLabelAndColorStylizeKmeans");
+    } else if (method === 1 || method === "singleLink") {
+      setDataDotgraphTrees(data.dotgraphTreesSingleLink);
+      setDataMaxAllres(data.maxAllresSingleLink);
+      setDataClusteredBow(data.clusteredBowSingleLink);
+      setMethodDigraphLabelStylize("digraphLabelStylizeSingleLink");
+      setMethodNodelabelandcolorstylize("nodeLabelAndColorStylizeSingleLink");
+    } else if (method === 2 || method === "completeLink") {
+      setDataDotgraphTrees(data.dotgraphTreesCompleteLink);
+      setDataMaxAllres(data.maxAllresCompleteLink);
+      setDataClusteredBow(data.clusteredBowCompleteLink);
+      setMethodDigraphLabelStylize("digraphLabelStylizeCompleteLink");
+      setMethodNodelabelandcolorstylize("nodeLabelAndColorStylizeCompleteLink");
+    } else {
+      console.log("Passed wrong clustering method");
+    }
+  };
+
   useEffect(() => {
+    document.title = "Analysis";
+    window.scrollTo(0, 0);
     // TODO to include cases where query is invalid
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("id");
+    const savedAnalysisId = urlParams.get("savedanalysisid");
 
     // if(id && ([...urlParams.entries()].length)>1){
 
@@ -142,10 +188,13 @@ const Analysis = () => {
         // console.log(data);
 
         setData(data.analysis);
-        setStatus(data.status);
+        setExtraData({ datasetSiteId: data.datasetSiteId, status: data.status, parameters: data.parameters });
+        setDataDotgraphTrees(data.analysis.dotgraphTreesKmeans);
+        setDataMaxAllres(data.analysis.maxAllresKmeans);
+        setDataClusteredBow(data.analysis.clusteredBowKmeans);
         // makeGridData(data.analysis);
 
-        // setDotData(data.analysis.dotgraphTrees);
+        // setDotData(data.analysis.dotgraphTreesKmeans);
 
         // setGspanOutData(data.analysis.gspanOut);
         // console.log(data.analysis.gspanOut);
@@ -202,33 +251,72 @@ const Analysis = () => {
   // TODO check how I can make the BOW ReactJson go above the map elements
   return (
     <div>
-      {status ? (
-        <section className="section-center" style={{ maxWidth: "70vw", width: "70vw", display: "flex" }}>
-          <span style={{ fontWeight: "bold" }}>
-            {status.split(".").map((x, index) => {
-              return (
-                <React.Fragment key={index}>
-                  {x}
-                  <br />
-                </React.Fragment>
-              );
-            })}
-          </span>
-        </section>
-      ) : (
-        <section
-          className="section-center"
-          style={{ maxWidth: "70vw", width: "70vw", display: "flex", justifyContent: "center" }}
+      <Box sx={{ display: "flex", flexDirection: "column", flexWrap: "nowrap", alignItems: "center" }}>
+        <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+          <Toolbar>
+            <Typography variant="h6" noWrap component="div">
+              Analysis
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: "border-box" },
+          }}
         >
-          <span style={{ fontWeight: "bold" }}>
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-              <CircularProgress />
-            </div>
-          </span>
-        </section>
-      )}
+          <Toolbar />
+          <Box sx={{ overflow: "auto" }}>
+            <List>
+              {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
+                <ListItem key={text} disablePadding>
+                  <ListItemButton>
+                    <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+                    <ListItemText primary={text} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+            <Divider />
+            <List>
+              {["All mail", "Trash", "Spam"].map((text, index) => (
+                <ListItem key={text} disablePadding>
+                  <ListItemButton>
+                    <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+                    <ListItemText primary={text} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        </Drawer>
 
-      {/* <section className="section-center" style={{ maxHeight: "50rem" }}>
+        {extraData ? (
+          <section
+            className="section-center section-center-flexwithsidenavbar"
+            style={{ maxWidth: "70vw", width: "70vw", display: "flex", flexDirection: "column" }}
+          >
+            <p style={{ fontWeight: "bold" }}>Status: {extraData.status}</p>
+            <p style={{ whiteSpace: "pre-wrap" }}>
+              {Object.entries(extraData.parameters).map((x) => `${x[0]}\t\t\t: ${x[1]}\n`)}
+            </p>
+          </section>
+        ) : (
+          <section
+            className="section-center section-center-flexwithsidenavbar"
+            style={{ maxWidth: "70vw", width: "70vw", display: "flex", justifyContent: "center" }}
+          >
+            <span style={{ fontWeight: "bold" }}>
+              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                <CircularProgress />
+              </div>
+            </span>
+          </section>
+        )}
+
+        {/* <section className="section-center section-center-flexwithsidenavbar" style={{ maxHeight: "50rem" }}>
         <>{console.log(dotData)}</>
         {dotData?
         <Graphviz
@@ -240,215 +328,221 @@ const Analysis = () => {
       }
       </section> */}
 
-      {/* -------tab section for rendering the frequent dot graph trees-------- */}
-      <section
-        className="section-center"
-        style={{ maxHeight: "80vh", height: "80vh", maxWidth: "70vw", width: "70vw", display: "flex" }}
-      >
-        <Box sx={{ width: "100%", typography: "body1" }}>
-          <TabContext value={valueTabDotGraphAndRender}>
-            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <TabList
-                onChange={handleChangeTabDotGraphAndRenders}
-                variant="scrollable"
-                scrollButtons
-                allowScrollButtonsMobile
-                aria-label="rendered html doms"
-              >
-                {data
-                  ? data.dotgraphTrees.dotGraphs.map((graph, index) => {
-                      return (
-                        <Tab
-                          label={graph[0].substring(0, graph[0].lastIndexOf(" "))}
-                          key={index}
-                          value={index.toString()}
-                        />
-                      );
-                    })
-                  : null}
-              </TabList>
-            </Box>
-            {data ? (
-              data.dotgraphTrees.dotGraphs.map((graph, index) => {
-                graph.splice(
-                  1,
-                  0,
-                  `label="Support: ${
-                    data.dotgraphTrees.dotSupport[index]
-                  }\nSubdirectories: [${data.dotgraphTrees.dotWhere[index].toString()}]"`
-                );
-                return (
-                  <TabPanel
-                    key={index}
-                    value={index.toString()}
-                    style={{ height: "-webkit-fill-available", paddingBottom: "50px" }}
-                  >
-                    <Graphviz dot={graph.join("\n")} options={{ zoom: true, height: "100%" }} />
-                  </TabPanel>
-                );
-              })
-            ) : (
-              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-                <CircularProgress />
-              </div>
-            )}
-          </TabContext>
-        </Box>
-      </section>
+        {/* -------tab section for rendering the frequent dot graph trees-------- */}
+        <section
+          className="section-center section-center-flexwithsidenavbar"
+          style={{ maxHeight: "80vh", height: "80vh", maxWidth: "70vw", width: "70vw", display: "flex" }}
+        >
+          <Box sx={{ width: "100%", typography: "body1" }}>
+            <TabContext value={valueTabDotGraphAndRender}>
+              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                <TabList
+                  onChange={handleChangeTabDotGraphAndRenders}
+                  variant="scrollable"
+                  scrollButtons
+                  allowScrollButtonsMobile
+                  aria-label="rendered dot graph trees"
+                >
+                  {dataDotgraphTrees
+                    ? dataDotgraphTrees.dotGraphs.map((graph, index) => {
+                        return (
+                          <Tab
+                            label={graph[0].substring(0, graph[0].lastIndexOf(" "))}
+                            key={index}
+                            value={index.toString()}
+                          />
+                        );
+                      })
+                    : null}
+                </TabList>
+              </Box>
+              {dataDotgraphTrees ? (
+                dataDotgraphTrees.dotGraphs.map((graph, index) => {
+                  graph.splice(
+                    1,
+                    0,
+                    `label="Support: ${
+                      dataDotgraphTrees.dotSupport[index]
+                    }\nSubdirectories: [${dataDotgraphTrees.dotWhere[index].toString()}]"`
+                  );
+                  return (
+                    <TabPanel
+                      key={index}
+                      value={index.toString()}
+                      style={{ height: "100%", paddingBottom: "50px" }}
+                    >
+                      <Graphviz
+                        dot={graph.join("\n")}
+                        options={{ zoom: true, width: "100%", height: "100%", fit: true }}
+                        className="graphvizrestrictsize"
+                      />
+                    </TabPanel>
+                  );
+                })
+              ) : (
+                <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                  <CircularProgress />
+                </div>
+              )}
+            </TabContext>
+          </Box>
+        </section>
 
-      {/* -------tab section for rendering the doms that are stylized from the frequent dot graph trees-------- */}
-      <section
-        className="section-center"
-        style={{ maxHeight: "80vh", height: "80vh", maxWidth: "70vw", width: "70vw", display: "flex" }}
-      >
-        <Box sx={{ width: "100%", typography: "body1" }}>
-          <TabContext value={valueTabDotGraphAndRender}>
-            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <TabList
-                onChange={handleChangeTabDotGraphAndRenders}
-                variant="scrollable"
-                scrollButtons
-                allowScrollButtonsMobile
-                aria-label="rendered html doms"
-              >
-                {data
-                  ? data.dotgraphTrees.dotGraphs.map((graph, index) => {
-                      return (
-                        <Tab
-                          label={
-                            graph[0].substring(0, graph[0].lastIndexOf(" ")) + "; "
-                            //+ valueTabDotGraphAndRender // the index of the graph I am in
-                          }
-                          key={index}
-                          value={index.toString()}
-                        />
-                      );
-                    })
-                  : null}
-              </TabList>
-            </Box>
-            {data ? (
-              data.dotgraphTrees.dotGraphs.map((graph, index) => {
-                return (
-                  <TabPanel
-                    key={index}
-                    value={index.toString()}
-                    style={{ height: "-webkit-fill-available", paddingBottom: "50px" }}
-                  >
-                    <Box sx={{ width: "100%", typography: "body1" }} style={{ height: "100%" }}>
-                      <TabContext value={valueTabDotRendersSubdir}>
-                        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                          <TabList
-                            onChange={handleChangeTabDotRendersSubdir}
-                            variant="scrollable"
-                            scrollButtons
-                            allowScrollButtonsMobile
-                            aria-label="rendered html doms"
-                          >
-                            {data.backRenderedDoms.map((dom, index) => {
-                              return (
-                                <Tab
-                                  label={`Subdirectory ${data.dotgraphTrees.dotWhere[valueTabDotGraphAndRender][index]}`}
-                                  key={index}
-                                  value={index.toString()}
-                                />
-                              );
-                            })}
-                          </TabList>
-                        </Box>
-                        {data.backRenderedDoms.map((html, index) => {
-                          const dom = new DOMParser().parseFromString(html, "text/html");
-                          dom
-                            .querySelectorAll(`[digraphLabelStylize*=";${valueTabDotGraphAndRender};"]`)
-                            .forEach((d) => {
-                              const color =
-                                d.getAttribute("nodelabelandcolorstylize")?.split(";")[1] || "red";
-                              d.style.cssText += `;border-style: solid;border-color: ${color};border-width: thick;${
-                                d.tagName === "A" && d.childNodes.length !== 1 ? " display: block;" : ""
-                              }`;
-                            });
-                          return (
-                            <TabPanel
-                              key={index}
-                              value={index.toString()}
-                              style={{ height: "-webkit-fill-available", paddingBottom: "50px" }}
+        {/* -------tab section for rendering the doms that are stylized from the frequent dot graph trees-------- */}
+        <section
+          className="section-center section-center-flexwithsidenavbar"
+          style={{ maxHeight: "80vh", height: "80vh", maxWidth: "70vw", width: "70vw", display: "flex" }}
+        >
+          <Box sx={{ width: "100%", typography: "body1" }}>
+            <TabContext value={valueTabDotGraphAndRender}>
+              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                <TabList
+                  onChange={handleChangeTabDotGraphAndRenders}
+                  variant="scrollable"
+                  scrollButtons
+                  allowScrollButtonsMobile
+                  aria-label="rendered html doms"
+                >
+                  {dataDotgraphTrees
+                    ? dataDotgraphTrees.dotGraphs.map((graph, index) => {
+                        return (
+                          <Tab
+                            label={
+                              graph[0].substring(0, graph[0].lastIndexOf(" ")) + "; "
+                              //+ valueTabDotGraphAndRender // the index of the graph I am in
+                            }
+                            key={index}
+                            value={index.toString()}
+                          />
+                        );
+                      })
+                    : null}
+                </TabList>
+              </Box>
+              {dataDotgraphTrees ? (
+                dataDotgraphTrees.dotGraphs.map((graph, index) => {
+                  return (
+                    <TabPanel
+                      key={index}
+                      value={index.toString()}
+                      style={{ height: "100%", paddingBottom: "50px" }}
+                    >
+                      <Box sx={{ width: "100%", typography: "body1" }} style={{ height: "100%" }}>
+                        <TabContext value={valueTabDotRendersSubdir}>
+                          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                            <TabList
+                              onChange={handleChangeTabDotRendersSubdir}
+                              variant="scrollable"
+                              scrollButtons
+                              allowScrollButtonsMobile
+                              aria-label="rendered html doms"
                             >
-                              <iframe
-                                title="rendered"
-                                style={{ width: "100%", height: "100%" }}
-                                srcDoc={dom.documentElement.outerHTML}
-                              ></iframe>
-                            </TabPanel>
-                          );
-                        })}
-                      </TabContext>
-                    </Box>
-                  </TabPanel>
-                );
-              })
-            ) : (
-              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-                <CircularProgress />
-              </div>
-            )}
-          </TabContext>
-        </Box>
-      </section>
+                              {data.backRenderedDoms.map((dom, index) => {
+                                return (
+                                  <Tab
+                                    label={`Subdirectory ${dataDotgraphTrees.dotWhere[valueTabDotGraphAndRender][index]}`}
+                                    key={index}
+                                    value={index.toString()}
+                                  />
+                                );
+                              })}
+                            </TabList>
+                          </Box>
+                          {data.backRenderedDoms.map((html, index) => {
+                            const dom = new DOMParser().parseFromString(html, "text/html");
+                            dom
+                              .querySelectorAll(
+                                `[${methodDigraphLabelStylize}*=";${valueTabDotGraphAndRender};"]`
+                              )
+                              .forEach((d) => {
+                                const color =
+                                  d.getAttribute(methodNodelabelandcolorstylize)?.split(";")[1] || "red";
+                                d.style.cssText += `;border-style: solid;border-color: ${color};border-width: thick;${
+                                  d.tagName === "A" && d.childNodes.length !== 1 ? " display: block;" : ""
+                                }`;
+                              });
+                            return (
+                              <TabPanel
+                                key={index}
+                                value={index.toString()}
+                                style={{ height: "100%", paddingBottom: "50px" }}
+                              >
+                                <iframe
+                                  title="rendered"
+                                  style={{ width: "100%", height: "100%" }}
+                                  srcDoc={dom.documentElement.outerHTML}
+                                ></iframe>
+                              </TabPanel>
+                            );
+                          })}
+                        </TabContext>
+                      </Box>
+                    </TabPanel>
+                  );
+                })
+              ) : (
+                <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                  <CircularProgress />
+                </div>
+              )}
+            </TabContext>
+          </Box>
+        </section>
 
-      {/* -------tab section for rendering the doms that are stylized with the nodeLabels-------- */}
-      <section
-        className="section-center"
-        style={{ maxHeight: "80vh", height: "80vh", maxWidth: "70vw", width: "70vw", display: "flex" }}
-      >
-        <Box sx={{ width: "100%", typography: "body1" }}>
-          <TabContext value={valueTabNodeRenderedDoms}>
-            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <TabList
-                onChange={handleChangeTabNodeRenderedDoms}
-                variant="scrollable"
-                scrollButtons
-                allowScrollButtonsMobile
-                aria-label="rendered html doms"
-              >
-                {data
-                  ? data.backRenderedDoms.map((html, index) => {
-                      return <Tab label={data.subdirsname[index]} key={index} value={index.toString()} />;
-                    })
-                  : null}
-              </TabList>
-            </Box>
-            {data ? (
-              data.backRenderedDoms.map((html, index) => {
-                const dom = new DOMParser().parseFromString(html, "text/html");
-                dom.querySelectorAll(`[nodeLabelAndColorStylize]`).forEach((d) => {
-                  const color = d.getAttribute("nodelabelandcolorstylize").split(";")[1];
-                  d.style.cssText += `border-style: solid;border-color: ${color};border-width: thick;${
-                    d.tagName === "A" && d.childNodes.length !== 1 ? " display: block;" : ""
-                  }`;
-                });
-                return (
-                  <TabPanel
-                    key={index}
-                    value={index.toString()}
-                    style={{ height: "-webkit-fill-available", paddingBottom: "50px" }}
-                  >
-                    <iframe
-                      title="rendered"
-                      style={{ width: "100%", height: "100%" }}
-                      srcDoc={dom.documentElement.outerHTML}
-                    ></iframe>
-                  </TabPanel>
-                );
-              })
-            ) : (
-              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-                <CircularProgress />
-              </div>
-            )}
-          </TabContext>
-        </Box>
-      </section>
-      {/* <TagCloud minSize={8} maxSize={31} tags={datatag[0]} />
+        {/* -------tab section for rendering the doms that are stylized with the nodeLabels-------- */}
+        <section
+          className="section-center section-center-flexwithsidenavbar"
+          style={{ maxHeight: "80vh", height: "80vh", maxWidth: "70vw", width: "70vw", display: "flex" }}
+        >
+          <Box sx={{ width: "100%", typography: "body1" }}>
+            <TabContext value={valueTabNodeRenderedDoms}>
+              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                <TabList
+                  onChange={handleChangeTabNodeRenderedDoms}
+                  variant="scrollable"
+                  scrollButtons
+                  allowScrollButtonsMobile
+                  aria-label="rendered html doms"
+                >
+                  {data
+                    ? data.backRenderedDoms.map((html, index) => {
+                        return <Tab label={data.subdirsname[index]} key={index} value={index.toString()} />;
+                      })
+                    : null}
+                </TabList>
+              </Box>
+              {data ? (
+                data.backRenderedDoms.map((html, index) => {
+                  const dom = new DOMParser().parseFromString(html, "text/html");
+                  dom.querySelectorAll(`[${methodNodelabelandcolorstylize}]`).forEach((d) => {
+                    const color = d.getAttribute(methodNodelabelandcolorstylize).split(";")[1];
+                    d.style.cssText += `border-style: solid;border-color: ${color};border-width: thick;${
+                      d.tagName === "A" && d.childNodes.length !== 1 ? " display: block;" : ""
+                    }`;
+                  });
+                  return (
+                    <TabPanel
+                      key={index}
+                      value={index.toString()}
+                      style={{ height: "100%", paddingBottom: "50px" }}
+                    >
+                      <iframe
+                        title="rendered"
+                        style={{ width: "100%", height: "100%" }}
+                        srcDoc={dom.documentElement.outerHTML}
+                      ></iframe>
+                    </TabPanel>
+                  );
+                })
+              ) : (
+                <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                  <CircularProgress />
+                </div>
+              )}
+            </TabContext>
+          </Box>
+        </section>
+        {/* <TagCloud minSize={8} maxSize={31} tags={datatag[0]} />
       <hr></hr>
       <TagCloud minSize={8} maxSize={31} tags={datatag[1]} />
       <hr></hr>
@@ -460,42 +554,42 @@ const Analysis = () => {
       <hr></hr>
       <TagCloud minSize={8} maxSize={31} tags={datatag[5]} />
       <hr></hr> */}
-      <Box sx={{ display: "flex" }}>
-        <Box sx={{ flexGrow: 1, p: 3 }}>
-          {!data ? (
-            <section className="section-center">
-              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-                <CircularProgress />
-              </div>
-            </section>
-          ) : (
-            <section className="section-center">
-              <p>
-                <span style={{ fontWeight: "bold" }}>Cluster Details: </span>
-              </p>
+        <Box sx={{ display: "flex" }}>
+          <Box sx={{ flexGrow: 1, p: 3 }}>
+            {!dataMaxAllres ? (
+              <section className="section-center section-center-flexwithsidenavbar">
+                <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                  <CircularProgress />
+                </div>
+              </section>
+            ) : (
+              <section className="section-center section-center-flexwithsidenavbar">
+                <p>
+                  <span style={{ fontWeight: "bold" }}>Cluster Details: </span>
+                </p>
 
-              <ReactJson name={false} collapsed={true} displayDataTypes={false} src={data.maxAllres} />
-            </section>
-          )}
+                <ReactJson name={false} collapsed={true} displayDataTypes={false} src={dataMaxAllres} />
+              </section>
+            )}
 
-          {!data ? (
-            <section className="section-center">
-              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-                <CircularProgress />
-              </div>
-            </section>
-          ) : (
-            <section className="section-center">
-              <p>
-                <span style={{ fontWeight: "bold" }}>Clustered Bow: </span>
-              </p>
+            {!dataClusteredBow ? (
+              <section className="section-center section-center-flexwithsidenavbar">
+                <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                  <CircularProgress />
+                </div>
+              </section>
+            ) : (
+              <section className="section-center section-center-flexwithsidenavbar">
+                <p>
+                  <span style={{ fontWeight: "bold" }}>Clustered Bow: </span>
+                </p>
 
-              <ReactJson name={false} collapsed={true} displayDataTypes={false} src={data.clusteredBow} />
-            </section>
-          )}
+                <ReactJson name={false} collapsed={true} displayDataTypes={false} src={dataClusteredBow} />
+              </section>
+            )}
 
-          {/* <CssBaseline /> */}
-          {/* <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+            {/* <CssBaseline /> */}
+            {/* <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
           <Toolbar>
             <Typography variant="h6" noWrap component="div">
               Sub-directories
@@ -532,14 +626,14 @@ const Analysis = () => {
           </Box>
         </Drawer> */}
 
-          {/* <Toolbar /> */}
+            {/* <Toolbar /> */}
 
-          {/* {data.nodes === 0 ? (
+            {/* {data.nodes === 0 ? (
             <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
               <CircularProgress />
             </div>
           ) : (
-            <section className="section-center">
+            <section className="section-center section-center-flexwithsidenavbar">
               <ReactJson
                 collapsed={true}
                 displayDataTypes={false}
@@ -550,13 +644,13 @@ const Analysis = () => {
             </section>
           )} */}
 
-          {/* // ----
+            {/* // ----
           {gridData === 0 ? (
             <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
               <CircularProgress />
             </div>
           ) : (
-            <section className="section-center" style={{ maxWidth: "70rem" }}>
+            <section className="section-center section-center-flexwithsidenavbar" style={{ maxWidth: "70rem" }}>
               <div style={{ height: 600, width: "100%" }}>
                 <DataGrid
                   rows={gridData.rows}
@@ -578,12 +672,12 @@ const Analysis = () => {
 
 // --- */}
 
-          {/* {gridData2 === 0 ? (
+            {/* {gridData2 === 0 ? (
             <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
               <CircularProgress />
             </div>
           ) : (
-            <section className="section-center">
+            <section className="section-center section-center-flexwithsidenavbar">
               <div style={{ height: 600, width: "100%" }}>
                 <DataGrid
                   rows={gridData2.rows2}
@@ -597,47 +691,65 @@ const Analysis = () => {
             </section>
           )} */}
 
-          {!data ? (
-            <section className="section-center">
-              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-                <CircularProgress />
-              </div>
-            </section>
-          ) : (
-            data.nodes.map((subDir, index) => {
-              return (
-                <section key={index} className="section-center">
-                  <p>
-                    <span style={{ fontWeight: "bold" }}>Sub-directory: </span>
-                    {" " + data.subdirsname[index]}
-                  </p>
+            {!data ? (
+              <section className="section-center section-center-flexwithsidenavbar">
+                <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                  <CircularProgress />
+                </div>
+              </section>
+            ) : (
+              data.nodes.map((subDir, index) => {
+                return (
+                  <section key={index} className="section-center section-center-flexwithsidenavbar">
+                    <p>
+                      <span style={{ fontWeight: "bold" }}>Sub-directory: </span>
+                      {" " + data.subdirsname[index]}
+                    </p>
 
-                  <ReactJson
-                    name={false}
-                    collapsed={[2, true]}
-                    displayDataTypes={false}
-                    src={subDir.map((item) => {
-                      // data.nodes[1] is next subdirectory
-                      return { id: item.id, node: item.node, text: item.text, terms: item.terms };
-                      // <div key={item.id} style={{ marginTop: "15%" }}>
-                      //   <p>
-                      //     <span style={{ fontWeight: "bold" }}>id: </span> {item.id}
-                      //   </p>
-                      //   <p>
-                      //     <span style={{ fontWeight: "bold" }}>node: </span> {item.node}
-                      //   </p>
-                      //   <p>
-                      //     <span style={{ fontWeight: "bold" }}>text: </span> {item.text}
-                      //   </p>
-                      //   <p style={{ fontWeight: "bold", marginBottom: 0 }}>terms:</p>
-                      //   <ReactJson collapsed={true} name={false} src={item.terms} />
-                      // </div>
-                    })}
-                  />
-                </section>
-              );
-            })
-          )}
+                    <ReactJson
+                      name={false}
+                      collapsed={[2, true]}
+                      displayDataTypes={false}
+                      src={subDir.map((item) => {
+                        // data.nodes[1] is next subdirectory
+                        return { id: item.id, node: item.node, text: item.text, terms: item.terms };
+                        // <div key={item.id} style={{ marginTop: "15%" }}>
+                        //   <p>
+                        //     <span style={{ fontWeight: "bold" }}>id: </span> {item.id}
+                        //   </p>
+                        //   <p>
+                        //     <span style={{ fontWeight: "bold" }}>node: </span> {item.node}
+                        //   </p>
+                        //   <p>
+                        //     <span style={{ fontWeight: "bold" }}>text: </span> {item.text}
+                        //   </p>
+                        //   <p style={{ fontWeight: "bold", marginBottom: 0 }}>terms:</p>
+                        //   <ReactJson collapsed={true} name={false} src={item.terms} />
+                        // </div>
+                      })}
+                    />
+                  </section>
+                );
+              })
+            )}
+          </Box>
+        </Box>
+
+        <Box sx={{ pb: 7 }}>
+          <Paper sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }} elevation={3}>
+            <BottomNavigation
+              showLabels
+              value={bottomNavigationValue}
+              onChange={(event, newValue) => {
+                setBottomNavigationValue(newValue);
+                changeClusteringMethod(newValue);
+              }}
+            >
+              <BottomNavigationAction label="Kmeans" icon={<RestoreIcon />} />
+              <BottomNavigationAction label="Single Link" icon={<FavoriteIcon />} />
+              <BottomNavigationAction label="Complete Link" icon={<ArchiveIcon />} />
+            </BottomNavigation>
+          </Paper>
         </Box>
       </Box>
     </div>

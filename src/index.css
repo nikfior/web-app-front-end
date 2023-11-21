@@ -158,6 +158,18 @@ main {
   display: grid;
   place-items: center;
 }
+
+.section-center-flexwithsidenavbar {
+  margin-left: 240px;
+  margin-right: 0px;
+}
+
+.graphvizrestrictsize{
+  height: 100% !important;
+  max-height: 100%;
+}
+
+
 /*
 =============== 
 Sites List

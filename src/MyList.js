@@ -43,12 +43,12 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
   const handleCloseForm = (DoIanalyze) => {
     if (DoIanalyze) {
       const queries = document.getElementById("nameFormQueries").value;
-      //console.log(queries);// TODO better parsing for queries. add them differently
+      // console.log(queries); // TODO better parsing for queries. add them differently
       getDataCheckSession(
         `${process.env.REACT_APP_BACKEND}api/sites/analysis?id=${formSiteId}${queries || ""}`
       )
         .then((data) => {
-          if (data.status.startsWith("Analyzing...")) {
+          if (data.status?.startsWith("Analyzing...")) {
             showAlert("success", "Analyzing...");
             refreshListItems();
           } else {
@@ -144,7 +144,10 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
               >
                 <ListItemButton style={{ maxWidth: "100%", paddingRight: "16px" }}>
                   <ListItemAvatar>
-                    <Avatar alt={url.split(/https?:\/\/(?:www\.)?/)[1].toUpperCase()} src={fetchedFavicon} />
+                    <Avatar
+                      alt={url.split(/https?:\/\/(?:www\.)?/)[1].toUpperCase()}
+                      src={/*fetchedFavicon*/ "temp"}
+                    />
                   </ListItemAvatar>
                   <ListItemText
                     primaryTypographyProps={{
@@ -200,8 +203,9 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
                           onClick={(e) => {
                             e.stopPropagation();
                             // clearInterval(statusRefresher);
-                            console.log(`/analysis?id=${id}&savedanalysisid=${analysis.savedAnalysisId}`);
-                            //navigate(`/analysis?id=${id}${queries[id] || ""}`);
+                            // console.log(`/analysis?id=${id}&savedanalysisid=${analysis.savedAnalysisId}`);
+                            navigate(`/analysis?id=${id}&savedanalysisid=${analysis.savedAnalysisId}`);
+                            // navigate(`/analysis?id=${id}${queries[id] || ""}`);
                           }}
                         >
                           {/* <ListItemText primary={analysis.savedAnalysisId} /> */}
@@ -217,7 +221,13 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
           );
         })}
       </List>
-      <Dialog open={openForm} onClose={handleCloseForm}>
+      <Dialog
+        open={openForm}
+        onClose={(e) => {
+          e.stopPropagation();
+          handleCloseForm(false);
+        }}
+      >
         <DialogTitle>Analyze</DialogTitle>
         <DialogContent>
           <DialogContentText whiteSpace={"pre-wrap"}>
