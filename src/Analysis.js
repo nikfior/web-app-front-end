@@ -33,6 +33,8 @@ import ListItemButton from "@mui/material/ListItemButton";
 
 import "./Analysis.css";
 
+const parserForDomInstance = new DOMParser();
+
 const drawerWidth = 240;
 
 const Analysis = () => {
@@ -449,7 +451,7 @@ const Analysis = () => {
                             </TabList>
                           </Box>
                           {data.backRenderedDoms.map((html, index) => {
-                            const dom = new DOMParser().parseFromString(html, "text/html");
+                            const dom = parserForDomInstance.parseFromString(html, "text/html");
                             dom
                               .querySelectorAll(
                                 `[${methodDigraphLabelStylize}*=";${valueTabDotGraphAndRender};"]`
@@ -513,7 +515,7 @@ const Analysis = () => {
               </Box>
               {data ? (
                 data.backRenderedDoms.map((html, index) => {
-                  const dom = new DOMParser().parseFromString(html, "text/html");
+                  const dom = parserForDomInstance.parseFromString(html, "text/html");
                   dom.querySelectorAll(`[${methodNodelabelandcolorstylize}]`).forEach((d) => {
                     const color = d.getAttribute(methodNodelabelandcolorstylize).split(";")[1];
                     d.style.cssText += `border-style: solid;border-color: ${color};border-width: thick;${

@@ -48,8 +48,8 @@ const MainView = () => {
       getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/`, "POST", { url: name, slowCrawl })
         .then((data) => {
           // showAlert(true, "danger", `${data.msg}`);
-          const alertType = data.msg.startsWith("The site is being scraped") ? "success" : "error";
-          showAlert(alertType, data.msg);
+          const alertType = data.status?.startsWith("Scraping...") ? "success" : "error";
+          showAlert(alertType, "The site is being scraped");
           // setList([...list, newItem]);
           setName("");
           // I reset the viewable list to the listAll that has all the items because they got reduced due to the search field
@@ -79,7 +79,7 @@ const MainView = () => {
   };
 
   const removeItem = (id, savedAnalysisId) => {
-    console.log(id, savedAnalysisId);
+    // console.log(id, savedAnalysisId);
     getDataCheckSession(
       `${process.env.REACT_APP_BACKEND}api/sites/${id}${
         savedAnalysisId ? "?savedanalysisid=" + savedAnalysisId : ""
