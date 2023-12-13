@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import MyList from "./MyList";
@@ -15,32 +15,21 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 const MainView = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
+  const nameRef = useRef(name);
   // listAll holds all the items
   const [listAll, setListAll] = useState(null);
   // list holds only the viewable items. Some may have been temporarily removed (hidden) during the use of the search field
   const [list, setList] = useState(null);
   const [username, setUsername] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
   const [placeholder, setPlaceholder] = useState("url");
-  const [queries, setQueries] = useState({});
   const [slowCrawl, setSlowCrawl] = useState(false);
-  const [editID, setEditID] = useState(null);
   const [alert, setAlert] = useState({ msg: "", type: "" });
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name && !isEditing) {
+    if (!name) {
       showAlert("warning", "please enter a site url");
-    } else if (isEditing) {
-      const tempQueries = { ...queries };
-      tempQueries[editID] = name.toString();
-      setQueries(tempQueries);
-      setName("");
-      setEditID(null);
-      setIsEditing(false);
-      setPlaceholder("url");
-      showAlert("success", "query parameters added for future analysis");
     } else {
       // add new site for scraping
 
@@ -73,6 +62,7 @@ const MainView = () => {
     setOpenSnackBar(true);
   };
 
+  //TODO do something with this button
   const clearList = () => {
     showAlert("warning", "empty list");
     setList([]);
@@ -126,7 +116,10 @@ const MainView = () => {
           };
         });
 
-        setList(tempList);
+        // console.log(name);
+        // console.log(nameRef.current);
+        // setList(tempList);
+        setList(tempList.filter((x) => x.url.includes(nameRef.current)));
         setListAll(tempList);
       })
       .catch((error) => {
@@ -138,27 +131,29 @@ const MainView = () => {
       });
   };
 
-  const editItem = (id) => {
-    // const site = list.find((site) => site.id === id);
-    setIsEditing(true);
-    setEditID(id);
-    // setName(JSON.stringify(site.parameters) || "");
-    setName(queries[id] || "");
-    setPlaceholder("enter the desired query parameters for the analysis");
-  };
-
   useEffect(() => {
     document.title = "Main Menu";
     refreshListItems();
 
+    const refreshTimer = setInterval(() => {
+      refreshListItems();
+      // console.log("beep " + refreshTimer);
+    }, 4000);
+
+    return () => clearInterval(refreshTimer);
     //
   }, []);
+
+  // needed in order for the live search in the text field to work while refreshing
+  useEffect(() => {
+    nameRef.current = name;
+  }, [name]);
 
   //
 
   return (
     <div>
-      <section className="section-center">
+      <section className="section-center" style={{ maxWidth: "80ch" }}>
         <form className="sites-form" onSubmit={handleSubmit}>
           <h4 style={{ marginBottom: "1.75rem", textTransform: "initial" }}>Hello {username}</h4>
           <h3>Site List</h3>
@@ -172,7 +167,7 @@ const MainView = () => {
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
-                if (!isEditing && listAll) {
+                if (listAll) {
                   setList(listAll.filter((x) => x.url.includes(e.target.value)));
                 }
               }}
@@ -183,7 +178,7 @@ const MainView = () => {
                 className="submit-btn"
                 style={{ margin: "0rem 0rem 0.5rem 0rem", maxHeight: "2rem" }}
               >
-                {isEditing ? "edit" : "submit"}
+                submit
               </button>
               <div
                 style={{ display: "flex", flexWrap: "nowrap", flexDirection: "row", alignItems: "baseline" }}
@@ -193,7 +188,6 @@ const MainView = () => {
                   id="slowcrawl"
                   name="slowcrawl"
                   value="slowcrawl"
-                  disabled={isEditing}
                   onChange={(e) => {
                     setSlowCrawl(e.target.checked);
                   }}

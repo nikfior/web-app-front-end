@@ -164,11 +164,19 @@ main {
   margin-right: 0px;
 }
 
+.section-center-flexwithsidenavbarsecondcolumn {
+  margin-left: 120px;
+  margin-right: 0px;
+}
+
 .graphvizrestrictsize{
   height: 100% !important;
   max-height: 100%;
 }
 
+section.section-center {
+  scroll-margin-top: 100px;
+}
 
 /*
 =============== 

@@ -20,7 +20,7 @@ import MailIcon from "@mui/icons-material/Mail";
 import { DataGrid } from "@mui/x-data-grid";
 import Tooltip from "@mui/material/Tooltip";
 import { TagCloud } from "react-tagcloud";
-import { Tab, Tabs } from "@mui/material";
+import { SvgIcon, Tab, Tabs } from "@mui/material";
 import { TabPanel, TabList, TabContext } from "@mui/lab";
 import { Graphviz } from "graphviz-react";
 import BottomNavigation from "@mui/material/BottomNavigation";
@@ -30,6 +30,13 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import Paper from "@mui/material/Paper";
 import ListItemButton from "@mui/material/ListItemButton";
+import Grid from "@mui/material/Grid";
+import StarIcon from "@mui/icons-material/Star";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+
+import { ReactComponent as KmeansIcon } from "./assets/kmeans.svg";
+import { ReactComponent as SingleLinkIcon } from "./assets/singlelink.svg";
+import { ReactComponent as CompleteLinkIcon } from "./assets/completelink.svg";
 
 import "./Analysis.css";
 
@@ -272,17 +279,29 @@ const Analysis = () => {
           <Toolbar />
           <Box sx={{ overflow: "auto" }}>
             <List>
-              {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
+              {[
+                "Status",
+                "Nodes",
+                "Clustering Details",
+                "Clustered BOW",
+                "DOT graph tree graphs",
+                "DOT graph Rendered DOMs",
+                "Clustered Rendered DOMs",
+              ].map((text, index) => (
                 <ListItem key={text} disablePadding>
-                  <ListItemButton>
-                    <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+                  <ListItemButton
+                    onClick={(event) => {
+                      document.querySelectorAll("section")[index].scrollIntoView({ behavior: "smooth" });
+                    }}
+                  >
+                    <ListItemIcon>{index % 2 === 0 ? <StarBorderIcon /> : <StarIcon />}</ListItemIcon>
                     <ListItemText primary={text} />
                   </ListItemButton>
                 </ListItem>
               ))}
             </List>
             <Divider />
-            <List>
+            {/* <List>
               {["All mail", "Trash", "Spam"].map((text, index) => (
                 <ListItem key={text} disablePadding>
                   <ListItemButton>
@@ -291,7 +310,7 @@ const Analysis = () => {
                   </ListItemButton>
                 </ListItem>
               ))}
-            </List>
+            </List> */}
           </Box>
         </Drawer>
 
@@ -317,6 +336,100 @@ const Analysis = () => {
             </span>
           </section>
         )}
+
+        <Box sx={{ display: "flex" }}>
+          <Box sx={{ flexGrow: 1, p: 3 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <section className="section-center section-center-flexwithsidenavbar">
+                  {!data ? (
+                    <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                      <CircularProgress />
+                    </div>
+                  ) : (
+                    data.nodes.map((subDir, index) => {
+                      return (
+                        <React.Fragment key={index}>
+                          <p style={{ marginTop: "1.25rem" }}>
+                            <span style={{ fontWeight: "bold" }}>Sub-directory: </span>
+                            {" " + data.subdirsname[index]}
+                          </p>
+
+                          <ReactJson
+                            style={{ marginBottom: "1.25rem" }}
+                            name={false}
+                            collapsed={[2, true]}
+                            displayDataTypes={false}
+                            src={subDir.map((item) => {
+                              // data.nodes[1] is next subdirectory
+                              return { id: item.id, node: item.node, text: item.text, terms: item.terms };
+                              // <div key={item.id} style={{ marginTop: "15%" }}>
+                              //   <p>
+                              //     <span style={{ fontWeight: "bold" }}>id: </span> {item.id}
+                              //   </p>
+                              //   <p>
+                              //     <span style={{ fontWeight: "bold" }}>node: </span> {item.node}
+                              //   </p>
+                              //   <p>
+                              //     <span style={{ fontWeight: "bold" }}>text: </span> {item.text}
+                              //   </p>
+                              //   <p style={{ fontWeight: "bold", marginBottom: 0 }}>terms:</p>
+                              //   <ReactJson collapsed={true} name={false} src={item.terms} />
+                              // </div>
+                            })}
+                          />
+                          <Divider></Divider>
+                        </React.Fragment>
+                      );
+                    })
+                  )}
+                </section>
+              </Grid>
+
+              <Grid item xs={6} container direction="column" spacing={2}>
+                <Grid item>
+                  {!dataMaxAllres ? (
+                    <section className="section-center section-center-flexwithsidenavbarsecondcolumn">
+                      <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                        <CircularProgress />
+                      </div>
+                    </section>
+                  ) : (
+                    <section className="section-center section-center-flexwithsidenavbarsecondcolumn">
+                      <p>
+                        <span style={{ fontWeight: "bold" }}>Cluster Details: </span>
+                      </p>
+
+                      <ReactJson name={false} collapsed={true} displayDataTypes={false} src={dataMaxAllres} />
+                    </section>
+                  )}
+                </Grid>
+                <Grid item>
+                  {!dataClusteredBow ? (
+                    <section className="section-center section-center-flexwithsidenavbarsecondcolumn">
+                      <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+                        <CircularProgress />
+                      </div>
+                    </section>
+                  ) : (
+                    <section className="section-center section-center-flexwithsidenavbarsecondcolumn">
+                      <p>
+                        <span style={{ fontWeight: "bold" }}>Clustered Bow: </span>
+                      </p>
+
+                      <ReactJson
+                        name={false}
+                        collapsed={true}
+                        displayDataTypes={false}
+                        src={dataClusteredBow}
+                      />
+                    </section>
+                  )}
+                </Grid>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
 
         {/* <section className="section-center section-center-flexwithsidenavbar" style={{ maxHeight: "50rem" }}>
         <>{console.log(dotData)}</>
@@ -556,186 +669,6 @@ const Analysis = () => {
       <hr></hr>
       <TagCloud minSize={8} maxSize={31} tags={datatag[5]} />
       <hr></hr> */}
-        <Box sx={{ display: "flex" }}>
-          <Box sx={{ flexGrow: 1, p: 3 }}>
-            {!dataMaxAllres ? (
-              <section className="section-center section-center-flexwithsidenavbar">
-                <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-                  <CircularProgress />
-                </div>
-              </section>
-            ) : (
-              <section className="section-center section-center-flexwithsidenavbar">
-                <p>
-                  <span style={{ fontWeight: "bold" }}>Cluster Details: </span>
-                </p>
-
-                <ReactJson name={false} collapsed={true} displayDataTypes={false} src={dataMaxAllres} />
-              </section>
-            )}
-
-            {!dataClusteredBow ? (
-              <section className="section-center section-center-flexwithsidenavbar">
-                <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-                  <CircularProgress />
-                </div>
-              </section>
-            ) : (
-              <section className="section-center section-center-flexwithsidenavbar">
-                <p>
-                  <span style={{ fontWeight: "bold" }}>Clustered Bow: </span>
-                </p>
-
-                <ReactJson name={false} collapsed={true} displayDataTypes={false} src={dataClusteredBow} />
-              </section>
-            )}
-
-            {/* <CssBaseline /> */}
-            {/* <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-          <Toolbar>
-            <Typography variant="h6" noWrap component="div">
-              Sub-directories
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <Drawer
-          variant="permanent"
-          sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: "border-box" },
-          }}
-        >
-          <Toolbar />
-          <Box sx={{ overflow: "auto" }}>
-            <List>
-              {["subdir1", "subdir2", "subdir3", "subdir4"].map((text, index) => (
-                <ListItem button key={text}>
-                  <ListItemIcon>{<InboxIcon />}</ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItem>
-              ))}
-            </List>
-            <Divider />
-            <List>
-              {["option1", "option2", "option3"].map((text, index) => (
-                <ListItem button key={text}>
-                  <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItem>
-              ))}
-            </List>
-          </Box>
-        </Drawer> */}
-
-            {/* <Toolbar /> */}
-
-            {/* {data.nodes === 0 ? (
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-              <CircularProgress />
-            </div>
-          ) : (
-            <section className="section-center section-center-flexwithsidenavbar">
-              <ReactJson
-                collapsed={true}
-                displayDataTypes={false}
-                name="BOW"
-                key="bow"
-                src={data.allDirsBow}
-              />
-            </section>
-          )} */}
-
-            {/* // ----
-          {gridData === 0 ? (
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-              <CircularProgress />
-            </div>
-          ) : (
-            <section className="section-center section-center-flexwithsidenavbar" style={{ maxWidth: "70rem" }}>
-              <div style={{ height: 600, width: "100%" }}>
-                <DataGrid
-                  rows={gridData.rows}
-                  columns={gridData.columns}
-                  pageSize={100}
-                  rowsPerPageOptions={[100]}
-                  // onCellClick={function (params) {
-                  //   if (params.field === "-1") {
-                  //     const flatNodes = data.nodes.flat(10);
-                  //     console.log(flatNodes[params.id].node + ": " + flatNodes[params.id].text);
-                  //   }
-                  // }}
-                  // checkboxSelection
-                  // disableSelectionOnClick
-                />
-              </div>
-            </section>
-          )}
-
-// --- */}
-
-            {/* {gridData2 === 0 ? (
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-              <CircularProgress />
-            </div>
-          ) : (
-            <section className="section-center section-center-flexwithsidenavbar">
-              <div style={{ height: 600, width: "100%" }}>
-                <DataGrid
-                  rows={gridData2.rows2}
-                  columns={gridData2.columns2}
-                  pageSize={100}
-                  rowsPerPageOptions={[100]}
-                  // checkboxSelection
-                  // disableSelectionOnClick
-                />
-              </div>
-            </section>
-          )} */}
-
-            {!data ? (
-              <section className="section-center section-center-flexwithsidenavbar">
-                <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
-                  <CircularProgress />
-                </div>
-              </section>
-            ) : (
-              data.nodes.map((subDir, index) => {
-                return (
-                  <section key={index} className="section-center section-center-flexwithsidenavbar">
-                    <p>
-                      <span style={{ fontWeight: "bold" }}>Sub-directory: </span>
-                      {" " + data.subdirsname[index]}
-                    </p>
-
-                    <ReactJson
-                      name={false}
-                      collapsed={[2, true]}
-                      displayDataTypes={false}
-                      src={subDir.map((item) => {
-                        // data.nodes[1] is next subdirectory
-                        return { id: item.id, node: item.node, text: item.text, terms: item.terms };
-                        // <div key={item.id} style={{ marginTop: "15%" }}>
-                        //   <p>
-                        //     <span style={{ fontWeight: "bold" }}>id: </span> {item.id}
-                        //   </p>
-                        //   <p>
-                        //     <span style={{ fontWeight: "bold" }}>node: </span> {item.node}
-                        //   </p>
-                        //   <p>
-                        //     <span style={{ fontWeight: "bold" }}>text: </span> {item.text}
-                        //   </p>
-                        //   <p style={{ fontWeight: "bold", marginBottom: 0 }}>terms:</p>
-                        //   <ReactJson collapsed={true} name={false} src={item.terms} />
-                        // </div>
-                      })}
-                    />
-                  </section>
-                );
-              })
-            )}
-          </Box>
-        </Box>
 
         <Box sx={{ pb: 7 }}>
           <Paper sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }} elevation={3}>
@@ -747,9 +680,9 @@ const Analysis = () => {
                 changeClusteringMethod(newValue);
               }}
             >
-              <BottomNavigationAction label="Kmeans" icon={<RestoreIcon />} />
-              <BottomNavigationAction label="Single Link" icon={<FavoriteIcon />} />
-              <BottomNavigationAction label="Complete Link" icon={<ArchiveIcon />} />
+              <BottomNavigationAction label="Kmeans" icon={<SvgIcon component={KmeansIcon} />} />
+              <BottomNavigationAction label="Single Link" icon={<SvgIcon component={SingleLinkIcon} />} />
+              <BottomNavigationAction label="Complete Link" icon={<SvgIcon component={CompleteLinkIcon} />} />
             </BottomNavigation>
           </Paper>
         </Box>

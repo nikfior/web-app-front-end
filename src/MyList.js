@@ -26,11 +26,12 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import BoltIcon from "@mui/icons-material/Bolt";
 
 const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
   //
 
-  const [statusRefresher, setStatusRefresher] = useState(-1);
+  // const [statusRefresher, setStatusRefresher] = useState(-1);
   const [openCollapse, setOpenCollapse] = React.useState({});
   const [openForm, setOpenForm] = React.useState(false);
   const [formSiteId, setFormSiteId] = React.useState(-1);
@@ -69,18 +70,14 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
   };
 
   useEffect(() => {
-    /*
-    console.log("In useffect");
-    const refreshTimer = setInterval(() => {
-      console.log("beep " + statusRefresher);
-    }, 4000);
-    setStatusRefresher(refreshTimer);
-
-    //console.log("IN EFFECT " + statusRefresher);
-    //
-    return () => console.log("RETURNSS");
-
-    */
+    // console.log("In useffect");
+    // const refreshTimer = setInterval(() => {
+    //   console.log("beep " + statusRefresher);
+    // }, 4000);
+    // setStatusRefresher(refreshTimer);
+    // //console.log("IN EFFECT " + statusRefresher);
+    // //
+    // return () => console.log("RETURNSS");
   }, []);
 
   //console.log("OUTSIDE EFFECT " + statusRefresher);
@@ -118,7 +115,7 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
                       aria-label="delete"
                       style={{ marginRight: "0px" }}
                     >
-                      <EditIcon />
+                      <BoltIcon fontSize="large" />
                     </IconButton>
                     <ListItemButton
                       sx={{ flexGrow: 0 }}
@@ -169,7 +166,12 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
                         </Typography>
                         <span
                           style={{
-                            color: scrapeStatus === "Completed scraping Ok" ? "green" : "red",
+                            color:
+                              scrapeStatus === "Completed scraping Ok"
+                                ? "green"
+                                : scrapeStatus.startsWith("Scraping...")
+                                ? "darkorange"
+                                : "red",
                           }}
                         >
                           {" " + scrapeStatus}
@@ -209,7 +211,18 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
                           }}
                         >
                           {/* <ListItemText primary={analysis.savedAnalysisId} /> */}
-                          <ListItemText>{analysis.analysisStatus}</ListItemText>
+                          <ListItemText
+                            style={{
+                              color:
+                                analysis.analysisStatus === "Completed analyzing Ok."
+                                  ? "green"
+                                  : analysis.analysisStatus.startsWith("Analyzing...")
+                                  ? "darkorange"
+                                  : "red",
+                            }}
+                          >
+                            {analysis.analysisStatus}
+                          </ListItemText>
                         </ListItemButton>
                       </ListItem>
                     );
