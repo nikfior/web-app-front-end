@@ -27,6 +27,23 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import BoltIcon from "@mui/icons-material/Bolt";
+import Tooltip from "@mui/material/Tooltip";
+import { styled } from "@mui/material/styles";
+import { tooltipClasses } from "@mui/material/Tooltip";
+
+const HtmlTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: "#f5f5f9",
+    color: "rgba(0, 0, 0, 0.87)",
+    maxWidth: 220,
+    fontSize: theme.typography.pxToRem(12),
+    border: "1px solid #dadde9",
+    minWidth: "min-content",
+    whiteSpace: "pre",
+  },
+}));
 
 const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
   //
@@ -201,29 +218,41 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
                           </IconButton>
                         }
                       >
-                        <ListItemButton
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // clearInterval(statusRefresher);
-                            // console.log(`/analysis?id=${id}&savedanalysisid=${analysis.savedAnalysisId}`);
-                            navigate(`/analysis?id=${id}&savedanalysisid=${analysis.savedAnalysisId}`);
-                            // navigate(`/analysis?id=${id}${queries[id] || ""}`);
-                          }}
+                        <HtmlTooltip
+                          title={
+                            <React.Fragment>
+                              {Object.entries(analysis.parameters ?? {}).map((x) => `${x[0]}\t: ${x[1]}\n`)}
+                            </React.Fragment>
+                          }
+                          placement="bottom-end"
+                          arrow
+                          followCursor
                         >
-                          {/* <ListItemText primary={analysis.savedAnalysisId} /> */}
-                          <ListItemText
-                            style={{
-                              color:
-                                analysis.analysisStatus === "Completed analyzing Ok."
-                                  ? "green"
-                                  : analysis.analysisStatus.startsWith("Analyzing...")
-                                  ? "darkorange"
-                                  : "red",
+                          <ListItemButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // clearInterval(statusRefresher);
+                              // console.log(`/analysis?id=${id}&savedanalysisid=${analysis.savedAnalysisId}`);
+                              navigate(`/analysis?id=${id}&savedanalysisid=${analysis.savedAnalysisId}`);
+                              // navigate(`/analysis?id=${id}${queries[id] || ""}`);
                             }}
                           >
-                            {analysis.analysisStatus}
-                          </ListItemText>
-                        </ListItemButton>
+                            {/* <ListItemText primary={analysis.savedAnalysisId} /> */}
+
+                            <ListItemText
+                              style={{
+                                color:
+                                  analysis.analysisStatus === "Completed analyzing Ok."
+                                    ? "green"
+                                    : analysis.analysisStatus.startsWith("Analyzing...")
+                                    ? "darkorange"
+                                    : "red",
+                              }}
+                            >
+                              {`${analysis.analysisStatus} - {${Object.values(analysis.parameters ?? {})}}`}
+                            </ListItemText>
+                          </ListItemButton>
+                        </HtmlTooltip>
                       </ListItem>
                     );
                   })}

@@ -109,7 +109,6 @@ const MainView = () => {
           return {
             url: site.url,
             id: site.id,
-            parameters: site.parameters,
             scrapeStatus: site.scrapeStatus,
             analyses: site.analyses,
             fetchedFavicon: `${new URL(site.url).origin}/favicon.ico`,
