@@ -202,6 +202,7 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
                 <List component="div" disablePadding>
                   {analyses.map((analysis) => {
                     // console.log(analysis);
+                    const paramValues = [];
                     return (
                       <ListItem
                         key={analysis.savedAnalysisId}
@@ -220,9 +221,34 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
                       >
                         <HtmlTooltip
                           title={
-                            <React.Fragment>
-                              {Object.entries(analysis.parameters ?? {}).map((x) => `${x[0]}\t: ${x[1]}\n`)}
-                            </React.Fragment>
+                            analysis.parameters ? (
+                              <React.Fragment>
+                                <table rules="all" style={{ borderStyle: "solid" }}>
+                                  <tbody>
+                                    {Object.entries(analysis.parameters).map((par, index2) => {
+                                      const sVal = String(par[1]);
+                                      paramValues.push(sVal);
+                                      return (
+                                        <tr key={index2}>
+                                          <th
+                                            style={{
+                                              textAlign: "left",
+                                              paddingRight: "1rem",
+                                              padding: "0.5rem",
+                                            }}
+                                          >
+                                            {par[0] + ":"}
+                                          </th>
+                                          <td style={{ padding: "0.5rem" }}>{sVal}</td>
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+                              </React.Fragment>
+                            ) : (
+                              ""
+                            )
                           }
                           placement="bottom-end"
                           arrow
@@ -249,7 +275,7 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
                                     : "red",
                               }}
                             >
-                              {`${analysis.analysisStatus} - {${Object.values(analysis.parameters ?? {})}}`}
+                              {`${analysis.analysisStatus} - {${paramValues.toString()}}`}
                             </ListItemText>
                           </ListItemButton>
                         </HtmlTooltip>

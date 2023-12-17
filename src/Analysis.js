@@ -20,7 +20,7 @@ import MailIcon from "@mui/icons-material/Mail";
 import { DataGrid } from "@mui/x-data-grid";
 import Tooltip from "@mui/material/Tooltip";
 import { TagCloud } from "react-tagcloud";
-import { SvgIcon, Tab, Tabs } from "@mui/material";
+import { IconButton, SvgIcon, Tab, Tabs } from "@mui/material";
 import { TabPanel, TabList, TabContext } from "@mui/lab";
 import { Graphviz } from "graphviz-react";
 import BottomNavigation from "@mui/material/BottomNavigation";
@@ -33,6 +33,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import Grid from "@mui/material/Grid";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import { ReactComponent as KmeansIcon } from "./assets/kmeans.svg";
 import { ReactComponent as SingleLinkIcon } from "./assets/singlelink.svg";
@@ -197,7 +198,12 @@ const Analysis = () => {
         // console.log(data);
 
         setData(data.analysis);
-        setExtraData({ datasetSiteId: data.datasetSiteId, status: data.status, parameters: data.parameters });
+        setExtraData({
+          datasetSiteId: data.datasetSiteId,
+          url: data.url,
+          status: data.status,
+          parameters: data.parameters,
+        });
         setDataDotgraphTrees(data.analysis.dotgraphTreesKmeans);
         setDataMaxAllres(data.analysis.maxAllresKmeans);
         setDataClusteredBow(data.analysis.clusteredBowKmeans);
@@ -263,8 +269,18 @@ const Analysis = () => {
       <Box sx={{ display: "flex", flexDirection: "column", flexWrap: "nowrap", alignItems: "center" }}>
         <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
           <Toolbar>
+            <IconButton
+              onClick={(e) => navigate(-1)}
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="back"
+              sx={{ mr: 2 }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
             <Typography variant="h6" noWrap component="div">
-              Analysis
+              {"Analysis: " + (extraData.url ?? "")}
             </Typography>
           </Toolbar>
         </AppBar>
@@ -317,17 +333,35 @@ const Analysis = () => {
         {extraData ? (
           <section
             className="section-center section-center-flexwithsidenavbar"
-            style={{ maxWidth: "70vw", width: "70vw", display: "flex", flexDirection: "column" }}
+            style={{ maxWidth: "50vw", width: "50vw", display: "flex", flexDirection: "column" }}
           >
-            <p style={{ fontWeight: "bold" }}>Status: {extraData.status}</p>
-            <p style={{ whiteSpace: "pre-wrap" }}>
-              {Object.entries(extraData.parameters).map((x) => `${x[0]}\t\t\t: ${x[1]}\n`)}
-            </p>
+            <p style={{ fontWeight: "bold", borderStyle: "solid" }}>Status: {extraData.status}</p>
+
+            <table rules="all" style={{ borderStyle: "solid" }}>
+              <tbody>
+                {Object.entries(extraData.parameters).map((par, index) => {
+                  return (
+                    <tr key={index}>
+                      <th
+                        style={{
+                          textAlign: "left",
+                          paddingRight: "1rem",
+                          padding: "0.5rem",
+                        }}
+                      >
+                        {par[0] + ":"}
+                      </th>
+                      <td style={{ padding: "0.5rem" }}>{String(par[1])}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </section>
         ) : (
           <section
             className="section-center section-center-flexwithsidenavbar"
-            style={{ maxWidth: "70vw", width: "70vw", display: "flex", justifyContent: "center" }}
+            style={{ maxWidth: "50vw", width: "50vw", display: "flex", justifyContent: "center" }}
           >
             <span style={{ fontWeight: "bold" }}>
               <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>

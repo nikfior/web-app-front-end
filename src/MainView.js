@@ -134,6 +134,7 @@ const MainView = () => {
     document.title = "Main Menu";
     refreshListItems();
 
+    // TODO make it auto-refresh only when there are Analyzing... and Scraping... statuses
     const refreshTimer = setInterval(() => {
       refreshListItems();
       // console.log("beep " + refreshTimer);
