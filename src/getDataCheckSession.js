@@ -1,4 +1,4 @@
-const getDataCheckSession = async (url, method = "GET", body) => {
+const getDataCheckSession = async (url, method = "GET", timeout = 60000, body) => {
   try {
     const MyCookies = document.cookie;
 
@@ -7,12 +7,21 @@ const getDataCheckSession = async (url, method = "GET", body) => {
         .find((x) => x.startsWith("jwttokenFront="))
         .split("=")[1];
 
+      const controller = new AbortController();
+      const signal = controller.signal;
+      let timer = setTimeout(() => controller.abort(), timeout);
+
+      // console.log("Before response");
       // check if logged and verify user
       const response = await fetch(`${process.env.REACT_APP_BACKEND}login/success`, {
+        signal,
         headers: {
           "Custom-Authorization": jwttoken,
         },
       });
+
+      clearTimeout(timer);
+      // console.log("after response");
       const data = await response.json();
       if (data.msg === "Success") {
         // If no arguments, return the check result
@@ -21,9 +30,11 @@ const getDataCheckSession = async (url, method = "GET", body) => {
         }
         // -----
 
+        timer = setTimeout(() => controller.abort(), timeout);
         let response2;
         if (!body) {
           response2 = await fetch(url, {
+            signal,
             method: method,
             headers: {
               "Custom-Authorization": jwttoken,
@@ -31,6 +42,7 @@ const getDataCheckSession = async (url, method = "GET", body) => {
           });
         } else {
           response2 = await fetch(url, {
+            signal,
             method: method,
             mode: "cors",
             headers: {
@@ -41,6 +53,7 @@ const getDataCheckSession = async (url, method = "GET", body) => {
           });
         }
 
+        clearTimeout(timer);
         const data2 = await response2.json();
         return data2;
       }
@@ -55,6 +68,7 @@ const getDataCheckSession = async (url, method = "GET", body) => {
 
     //
   } catch (error) {
+    // console.log("In Error: " + error.message);
     // if (error.message === "Credentials missing") {
     //   //   navigate("/");
     // } else {

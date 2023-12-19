@@ -5,6 +5,7 @@ import Login from "./Login";
 import MainView from "./MainView";
 import Analysis from "./Analysis";
 import getDataCheckSession from "./getDataCheckSession";
+import ScrapeInfo from "./ScrapeInfo";
 
 //
 
@@ -37,6 +38,7 @@ function App() {
       <Route path="/" element={<Login />} />
       <Route path="/view" element={<MainView />} />
       <Route path="/analysis" element={<Analysis />} />
+      <Route path="/scrapeInfo" element={<ScrapeInfo />} />
     </Routes>
   );
 }

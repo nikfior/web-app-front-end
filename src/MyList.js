@@ -156,7 +156,10 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
                   </div>
                 }
               >
-                <ListItemButton style={{ maxWidth: "100%", paddingRight: "16px" }}>
+                <ListItemButton
+                  onClick={(e) => navigate(`/scrapeInfo?id=${id}`)}
+                  style={{ maxWidth: "100%", paddingRight: "16px" }}
+                >
                   <ListItemAvatar>
                     <Avatar
                       alt={url.split(/https?:\/\/(?:www\.)?/)[1].toUpperCase()}

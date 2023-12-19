@@ -34,7 +34,10 @@ const MainView = () => {
       // add new site for scraping
 
       //// e.target[0].value instead of name for better sync
-      getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/`, "POST", { url: name, slowCrawl })
+      getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/`, "POST", 60000, {
+        url: name,
+        slowCrawl,
+      })
         .then((data) => {
           // showAlert(true, "danger", `${data.msg}`);
           const alertType = data.status?.startsWith("Scraping...") ? "success" : "error";
@@ -100,7 +103,7 @@ const MainView = () => {
 
   // gets the items from the backend. Can be called when I want to refresh the items in the list because I added or deleted one
   const refreshListItems = () => {
-    getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/getMenu`)
+    getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/getMenu`, "GET", 3500)
       .then((data) => {
         const tempusername = data.username ? data.username : "";
         setUsername(tempusername);
@@ -134,11 +137,11 @@ const MainView = () => {
     document.title = "Main Menu";
     refreshListItems();
 
-    // TODO make it auto-refresh only when there are Analyzing... and Scraping... statuses
+    // TODO make it auto-refresh only when there are Analyzing... and Scraping... statuses. Alternatively I could also implement a websockets or SSE solution
     const refreshTimer = setInterval(() => {
       refreshListItems();
-      // console.log("beep " + refreshTimer);
-    }, 4000);
+      // If i change the refresh rate, make sure to also change the timeout time in the refreshListItems' getDataCheckSession function so that it is less than the refresh rate so that if the backend disconnects it would not get flooded with piling fetch requests
+    }, 5000);
 
     return () => clearInterval(refreshTimer);
     //
