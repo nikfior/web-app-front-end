@@ -156,23 +156,25 @@ const Analysis = () => {
     if (data === "") {
       console.log("data was not set");
       return;
+    } else if (data === null) {
+      return;
     }
     if (method === 0 || method === "kmeans") {
-      setDataDotgraphTrees(data.dotgraphTreesKmeans);
-      setDataMaxAllres(data.maxAllresKmeans);
-      setDataClusteredBow(data.clusteredBowKmeans);
+      setDataDotgraphTrees(data?.dotgraphTreesKmeans);
+      setDataMaxAllres(data?.maxAllresKmeans);
+      setDataClusteredBow(data?.clusteredBowKmeans);
       setMethodDigraphLabelStylize("digraphLabelStylizeKmeans");
       setMethodNodelabelandcolorstylize("nodeLabelAndColorStylizeKmeans");
     } else if (method === 1 || method === "singleLink") {
-      setDataDotgraphTrees(data.dotgraphTreesSingleLink);
-      setDataMaxAllres(data.maxAllresSingleLink);
-      setDataClusteredBow(data.clusteredBowSingleLink);
+      setDataDotgraphTrees(data?.dotgraphTreesSingleLink);
+      setDataMaxAllres(data?.maxAllresSingleLink);
+      setDataClusteredBow(data?.clusteredBowSingleLink);
       setMethodDigraphLabelStylize("digraphLabelStylizeSingleLink");
       setMethodNodelabelandcolorstylize("nodeLabelAndColorStylizeSingleLink");
     } else if (method === 2 || method === "completeLink") {
-      setDataDotgraphTrees(data.dotgraphTreesCompleteLink);
-      setDataMaxAllres(data.maxAllresCompleteLink);
-      setDataClusteredBow(data.clusteredBowCompleteLink);
+      setDataDotgraphTrees(data?.dotgraphTreesCompleteLink);
+      setDataMaxAllres(data?.maxAllresCompleteLink);
+      setDataClusteredBow(data?.clusteredBowCompleteLink);
       setMethodDigraphLabelStylize("digraphLabelStylizeCompleteLink");
       setMethodNodelabelandcolorstylize("nodeLabelAndColorStylizeCompleteLink");
     } else {
@@ -193,20 +195,32 @@ const Analysis = () => {
     // }
 
     getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/analysis?${urlParams.toString()}`)
-      .then((data) => {
-        // console.log(data.nodes[0][3].str);
-        // console.log(data);
+      .then((dataNow) => {
+        // console.log(dataNow.nodes[0][3].str);
+        // console.log(dataNow);
 
-        setData(data.analysis);
+        setData(dataNow.analysis);
         setExtraData({
-          datasetSiteId: data.datasetSiteId,
-          url: data.url,
-          status: data.status,
-          parameters: data.parameters,
+          datasetSiteId: dataNow.datasetSiteId,
+          url: dataNow.url,
+          status: dataNow.status,
+          parameters: dataNow.parameters,
         });
-        setDataDotgraphTrees(data.analysis.dotgraphTreesKmeans);
-        setDataMaxAllres(data.analysis.maxAllresKmeans);
-        setDataClusteredBow(data.analysis.clusteredBowKmeans);
+        setDataDotgraphTrees(dataNow.analysis?.dotgraphTreesKmeans);
+        setDataMaxAllres(dataNow.analysis?.maxAllresKmeans);
+        setDataClusteredBow(dataNow.analysis?.clusteredBowKmeans);
+
+        // if there is a problem with the analysis, then handle it by removing the loading icons and showing No Data and also showing whatever data exists
+        if (dataNow.analysis === null) {
+          const loadingIcons = document.querySelectorAll(
+            "span.MuiCircularProgress-root.MuiCircularProgress-indeterminate"
+          );
+          loadingIcons.forEach((x) => {
+            const newEl = document.createElement("P");
+            newEl.textContent = "No Data";
+            x.replaceWith(newEl);
+          });
+        }
         // makeGridData(data.analysis);
 
         // setDotData(data.analysis.dotgraphTreesKmeans);
@@ -330,13 +344,11 @@ const Analysis = () => {
           </Box>
         </Drawer>
 
-        {extraData ? (
+        {extraData.parameters ? (
           <section
             className="section-center section-center-flexwithsidenavbar"
             style={{ maxWidth: "50vw", width: "50vw", display: "flex", flexDirection: "column" }}
           >
-            <p style={{ fontWeight: "bold", borderStyle: "solid" }}>Status: {extraData.status}</p>
-
             <table rules="all" style={{ borderStyle: "solid" }}>
               <tbody>
                 {Object.entries(extraData.parameters).map((par, index) => {
@@ -361,10 +373,22 @@ const Analysis = () => {
         ) : (
           <section
             className="section-center section-center-flexwithsidenavbar"
-            style={{ maxWidth: "50vw", width: "50vw", display: "flex", justifyContent: "center" }}
+            style={{
+              maxWidth: "50vw",
+              width: "50vw",
+              display: "flex",
+              justifyContent: "center",
+              flexDirection: "column",
+            }}
           >
+            {extraData.status ? (
+              <p style={{ fontWeight: "bold", borderStyle: "solid" }}>Status: {extraData.status}</p>
+            ) : null}
+
             <span style={{ fontWeight: "bold" }}>
-              <div style={{ display: "flex", justifyContent: "center", marginTop: "18%" }}>
+              <div
+                style={{ display: "flex", justifyContent: "center", marginTop: "15%", marginBottom: "5%" }}
+              >
                 <CircularProgress />
               </div>
             </span>
