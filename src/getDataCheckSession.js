@@ -59,7 +59,7 @@ const getDataCheckSession = async (url, method = "GET", timeout = 60000, body) =
       }
 
       // wrong token so clear cookie
-      document.cookie = "jwttokenFront=; expires=Thu, 01 Jan 1970 00:00:01 UTC";
+      document.cookie = "jwttokenFront=; expires=Thu, 01 Jan 1970 00:00:01 UTC; path=/;";
       throw new Error("Credentials missing");
     }
 

@@ -175,7 +175,7 @@ main {
 }
 
 section.section-center {
-  scroll-margin-top: 100px;
+  scroll-margin-top: 80px;
 }
 
 /*
@@ -188,7 +188,7 @@ Sites List
   border-radius: var(--radius);
   box-shadow: var(--light-shadow);
   transition: var(--transition);
-  padding: 2rem;
+  padding: 1rem 2rem;
 }
 .section-center:hover {
   box-shadow: var(--dark-shadow);

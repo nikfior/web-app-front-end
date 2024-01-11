@@ -728,7 +728,7 @@ const Analysis = () => {
       <TagCloud minSize={8} maxSize={31} tags={datatag[5]} />
       <hr></hr> */}
 
-        <Box sx={{ pb: 7 }}>
+        <Box sx={{ pb: 7, marginTop: "1rem" }}>
           <Paper sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }} elevation={3}>
             <BottomNavigation
               showLabels

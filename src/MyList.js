@@ -60,10 +60,15 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
 
   const handleCloseForm = (DoIanalyze) => {
     if (DoIanalyze) {
-      const queries = document.getElementById("nameFormQueries").value;
+      const queries = document
+        .getElementById("nameFormQueries")
+        .value.split(";")
+        .map((x) => x.trim())
+        .filter((x) => x.length > 0);
+
       // console.log(queries); // TODO better parsing for queries. add them differently
       getDataCheckSession(
-        `${process.env.REACT_APP_BACKEND}api/sites/analysis?id=${formSiteId}${queries || ""}`
+        `${process.env.REACT_APP_BACKEND}api/sites/analysis?id=${formSiteId}&${queries.join("&") || ""}`
       )
         .then((data) => {
           if (data.status?.startsWith("Analyzing...")) {
@@ -301,13 +306,19 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
       >
         <DialogTitle>Analyze</DialogTitle>
         <DialogContent>
-          <DialogContentText whiteSpace={"pre-wrap"}>
-            Please enter the analysis parameters you wish to use for the site analysis.{"\n"}
-            The available parameters can be seen in the{" "}
-            <a href={`${process.env.REACT_APP_BACKEND}api-docs/`} target="_blank" rel="noreferrer">
-              Documentation Page
-            </a>
-            .
+          <DialogContentText component={"div"} whiteSpace={"pre-wrap"}>
+            <p style={{ marginBottom: "0.6rem" }}>
+              Please enter the analysis parameters you wish to use for the site analysis.{"\n"}
+              The available parameters can be seen in the{" "}
+              <a href={`${process.env.REACT_APP_BACKEND}api-docs/`} target="_blank" rel="noreferrer">
+                Documentation Page
+              </a>
+              .
+            </p>
+            <p style={{ fontSize: "smaller", fontWeight: 600 }}>
+              The parameters must be inserted in a parameter value pair with equals, and multiple parameters
+              must be separated by colons. Eg. uppersubdirnum=12; lowernodelimit=3
+            </p>
           </DialogContentText>
           <TextField
             autoFocus
@@ -317,6 +328,7 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
             type="text"
             fullWidth
             variant="standard"
+            helperText="param1=value1; param2=value2"
           />
         </DialogContent>
         <DialogActions>

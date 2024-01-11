@@ -44,6 +44,12 @@ const MainView = () => {
           showAlert(alertType, "The site is being scraped");
           // setList([...list, newItem]);
           setName("");
+
+          // if slowCrawl is checked then click it to uncheck it because it is unchecked by default
+          if (slowCrawl) {
+            document.getElementById("slowcrawl").click();
+          }
+
           // I reset the viewable list to the listAll that has all the items because they got reduced due to the search field
           if (listAll) {
             setList(listAll);
@@ -158,7 +164,24 @@ const MainView = () => {
     <div>
       <section className="section-center" style={{ maxWidth: "80ch" }}>
         <form className="sites-form" onSubmit={handleSubmit}>
-          <h4 style={{ marginBottom: "1.75rem", textTransform: "initial" }}>Hello {username}</h4>
+          <h4 style={{ marginBottom: "1.75rem", textTransform: "initial" }}>
+            Hello <span style={{ fontWeight: "800" }}>{username}</span>
+            <span>
+              {" "}
+              ({/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+              <a
+                href=""
+                style={{ color: "red" }}
+                onClick={() =>
+                  (document.cookie = "jwttokenFront=; expires=Thu, 01 Jan 1970 00:00:01 UTC; path=/;")
+                }
+              >
+                Logout
+              </a>
+              )
+            </span>
+          </h4>
+
           <h3>Site List</h3>
 
           <div className="form-control">
