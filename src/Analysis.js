@@ -610,44 +610,51 @@ const Analysis = () => {
                               allowScrollButtonsMobile
                               aria-label="rendered html doms"
                             >
-                              {data.backRenderedDoms.map((dom, index) => {
-                                return (
-                                  <Tab
-                                    label={`Subdirectory ${dataDotgraphTrees.dotWhere[valueTabDotGraphAndRender][index]}`}
-                                    key={index}
-                                    value={index.toString()}
-                                  />
-                                );
-                              })}
+                              {data &&
+                                dataDotgraphTrees.dotWhere[index].map((where, index) => {
+                                  return (
+                                    <Tab
+                                      label={`Subdirectory ${where}`}
+                                      key={index}
+                                      value={index.toString()}
+                                    />
+                                  );
+                                })}
                             </TabList>
                           </Box>
-                          {data.backRenderedDoms.map((html, index) => {
-                            const dom = parserForDomInstance.parseFromString(html, "text/html");
-                            dom
-                              .querySelectorAll(
-                                `[${methodDigraphLabelStylize}*=";${valueTabDotGraphAndRender};"]`
-                              )
-                              .forEach((d) => {
-                                const color =
-                                  d.getAttribute(methodNodelabelandcolorstylize)?.split(";")[1] || "red";
-                                d.style.cssText += `;border-style: solid;border-color: ${color};border-width: thick;${
-                                  d.tagName === "A" && d.childNodes.length !== 1 ? " display: block;" : ""
-                                }`;
-                              });
-                            return (
-                              <TabPanel
-                                key={index}
-                                value={index.toString()}
-                                style={{ height: "100%", paddingBottom: "50px" }}
-                              >
-                                <iframe
-                                  title="rendered"
-                                  style={{ width: "100%", height: "100%" }}
-                                  srcDoc={dom.documentElement.outerHTML}
-                                ></iframe>
-                              </TabPanel>
-                            );
-                          })}
+                          {data &&
+                            dataDotgraphTrees.dotWhere[index].map((where, index) => {
+                              const dom = parserForDomInstance.parseFromString(
+                                data.backRenderedDoms[where],
+                                "text/html"
+                              );
+                              dom
+                                .querySelectorAll(
+                                  `[${methodDigraphLabelStylize}*=";${valueTabDotGraphAndRender};"]`
+                                )
+                                .forEach((d) => {
+                                  const color =
+                                    d.getAttribute(methodNodelabelandcolorstylize)?.split(";")[1] || "red";
+                                  d.style.cssText += `;border-style: solid;border-color: ${color};border-width: ${
+                                    color === "red" ? "thin" : "thick"
+                                  };${
+                                    d.tagName === "A" && d.childNodes.length !== 1 ? " display: block;" : ""
+                                  }`;
+                                });
+                              return (
+                                <TabPanel
+                                  key={index}
+                                  value={index.toString()}
+                                  style={{ height: "100%", paddingBottom: "50px" }}
+                                >
+                                  <iframe
+                                    title="rendered"
+                                    style={{ width: "100%", height: "100%" }}
+                                    srcDoc={dom.documentElement.outerHTML}
+                                  ></iframe>
+                                </TabPanel>
+                              );
+                            })}
                         </TabContext>
                       </Box>
                     </TabPanel>

@@ -166,10 +166,7 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
                   style={{ maxWidth: "100%", paddingRight: "16px" }}
                 >
                   <ListItemAvatar>
-                    <Avatar
-                      alt={url.split(/https?:\/\/(?:www\.)?/)[1].toUpperCase()}
-                      src={/*fetchedFavicon*/ "temp"}
-                    />
+                    <Avatar alt={url.split(/https?:\/\/(?:www\.)?/)[1].toUpperCase()} src={fetchedFavicon} />
                   </ListItemAvatar>
                   <ListItemText
                     primaryTypographyProps={{
