@@ -191,9 +191,9 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
                             color:
                               scrapeStatus === "Completed scraping Ok"
                                 ? "green"
-                                : scrapeStatus.startsWith("Scraping...")
-                                ? "darkorange"
-                                : "red",
+                                : scrapeStatus.startsWith("Error scraping")
+                                ? "red"
+                                : "darkorange",
                           }}
                         >
                           {" " + scrapeStatus}
@@ -275,9 +275,9 @@ const MyList = ({ items, removeItem, showAlert, refreshListItems }) => {
                                 color:
                                   analysis.analysisStatus === "Completed analyzing Ok."
                                     ? "green"
-                                    : analysis.analysisStatus.startsWith("Analyzing...")
-                                    ? "darkorange"
-                                    : "red",
+                                    : analysis.analysisStatus.startsWith("Error analyzing")
+                                    ? "red"
+                                    : "darkorange",
                               }}
                             >
                               {`${analysis.analysisStatus} - {${paramValues.toString()}}`}

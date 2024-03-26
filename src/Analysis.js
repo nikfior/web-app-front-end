@@ -221,6 +221,19 @@ const Analysis = () => {
             x.replaceWith(newEl);
           });
         }
+
+        // if dotgraphTreesKmeans===null it means that all the other clustering algorithms are null and that there are no hierarchical analysis data. if there are no hierarchical analysis then remove the loading icons and show No Data
+        if (dataNow.analysis.dotgraphTreesKmeans === null) {
+          const loadingIcons = document.querySelectorAll(
+            "span.MuiCircularProgress-root.MuiCircularProgress-indeterminate"
+          );
+          loadingIcons.forEach((x) => {
+            const newEl = document.createElement("P");
+            newEl.textContent = "No Data";
+            x.replaceWith(newEl);
+          });
+        }
+
         // makeGridData(data.analysis);
 
         // setDotData(data.analysis.dotgraphTreesKmeans);

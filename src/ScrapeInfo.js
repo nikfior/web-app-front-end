@@ -22,7 +22,7 @@ const ScrapeInfo = () => {
     // // id = window.location.pathname.split("/").pop();
     const id = new URLSearchParams(window.location.search).get("id");
 
-    getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/${id}`)
+    getDataCheckSession(`${process.env.REACT_APP_BACKEND}api/sites/${id}?htmlomit=true`)
       .then((data) => {
         setScrapeData(data);
       })
